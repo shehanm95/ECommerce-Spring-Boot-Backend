@@ -1,5 +1,6 @@
 package com.easternpearl.ecommmerce.product;
 
+import com.easternpearl.ecommmerce.product.model.enums.ProductState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -15,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @CrossOrigin("*")
@@ -43,16 +43,34 @@ public class ProductController {
             @RequestParam("productName") String productName,
             @RequestParam("price") Double price,
             @RequestParam("category") String category,
-            @RequestParam("imageFile") MultipartFile imageFile) {
+            @RequestParam("sellerId") Integer sellerId,
+            @RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("rate") Double rate,
+            @RequestParam("rateCount") Integer rateCount,
+            @RequestParam("productCount") Integer productCount)
+    {
         createFolder();
+        ProductState productState = (productCount > 0) ? ProductState.InStock : ProductState.OutOfStock ;
+
         try {
             Product product = new Product(
                     null,
                     productName,
                     price,
                     category,
-                    imageFile.getOriginalFilename());
+                    imageFile.getOriginalFilename(),
+                    sellerId,
+                    rate,
+                    rateCount,
+                    productState,
+                    productCount,
+                    "Product still code not added",
+                    true
+            );
+
             Product savedProduct = productService.save(product);
+            String productCode = String.format("P%04dS%04d", savedProduct.getId(),sellerId);
+            savedProduct.setProductCode(productCode);
             String imageLink = saveImageFile( savedProduct.getId(),imageFile);
             savedProduct.setProductImageLink(imageLink);
             savedProduct = productService.save(savedProduct);
@@ -91,8 +109,8 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.findAll();
+    public ResponseEntity<List<Product>> getAllProductsForCustomers() {
+        List<Product> products = productService.findAllForCustomers();
         return ResponseEntity.ok(products);
     }
 

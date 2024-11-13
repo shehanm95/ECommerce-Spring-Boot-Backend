@@ -27,7 +27,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -72,6 +72,43 @@ public class UserController {
         registerDAO.setPassword(password);
         registerDAO.setBirthdate(LocalDate.parse(birthdate));
         registerDAO.setUserRole(userRole);
+
+
+        System.out.println(new UserDTO());
+        UserDTO user = userService.register(registerDAO, image);
+        System.out.println("saved user : "+user);
+
+        if(user != null){
+            return ResponseEntity.ok(user);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @PostMapping("/register/admin")
+    public ResponseEntity<UserDTO> registerAsAdmin(
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("username") String username,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("birthdate") String birthdate,
+            @RequestParam("adminPassword") String adminPassword,
+            @RequestParam("image") MultipartFile image) {
+
+
+        System.out.println(adminPassword +"==========admin===============");
+        if(!adminPassword.equals("Ecom123")){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);}
+        System.out.println(adminPassword);
+        RegisterDAO registerDAO = new RegisterDAO();
+        registerDAO.setFirstName(firstName);
+        registerDAO.setLastName(lastName);
+        registerDAO.setUsername(username);
+        registerDAO.setEmail(email);
+        registerDAO.setPassword(password);
+        registerDAO.setBirthdate(LocalDate.parse(birthdate));
+        registerDAO.setUserRole(UserRole.ADMIN);
 
 
         System.out.println(new UserDTO());
