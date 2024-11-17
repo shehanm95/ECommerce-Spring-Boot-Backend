@@ -1,6 +1,7 @@
 package com.easternpearl.ecommmerce.category;
 
 import com.easternpearl.ecommmerce.subCategory.SubCategory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,10 +20,6 @@ public class Category {
 
     @Column(nullable = false, unique = true)
     private String name;
-
-
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubCategory> subCategories;
 
 }
 

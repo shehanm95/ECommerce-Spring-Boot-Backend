@@ -1,6 +1,7 @@
 package com.easternpearl.ecommmerce.subCategory;
 
 import com.easternpearl.ecommmerce.category.Category;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,5 @@ public class SubCategory {
 
     private String subCategoryName;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    private Long categoryId;
 }

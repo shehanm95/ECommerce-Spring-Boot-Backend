@@ -50,4 +50,11 @@ public class CategoryController {
         List<Category> categories = categoryService.findAllCategories();
         return ResponseEntity.ok(categories);
     }
+
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<Category>> saveCategories(@RequestBody List<Category> categories) {
+        List<Category> savedCategories = categoryService.saveAll(categories);
+        return ResponseEntity.ok(savedCategories);
+    }
 }

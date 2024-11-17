@@ -1,15 +1,17 @@
 package com.easternpearl.ecommmerce.product;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import com.easternpearl.ecommmerce.product.ProductRepository;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+   private final ProductRepository productRepository;
 
     public Product save(Product product) {
         return productRepository.save(product);
@@ -27,12 +29,17 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<Product> findByCategory(String category) {
+    public List<Product> findByCategory(Integer category) {
         return productRepository.findByCategory(category);
     }
 
     public List<Product> findByName(String name) {
         return productRepository.findByProductNameContainingIgnoreCase(name);
+    }
+
+
+    public List<Product> saveAll(List<Product> products) {
+        return productRepository.saveAll(products);
     }
 }
 

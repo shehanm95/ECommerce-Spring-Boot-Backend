@@ -1,6 +1,8 @@
 package com.easternpearl.ecommmerce.product;
 
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
+import com.easternpearl.ecommmerce.product.repo.ProductFilterDAO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -21,13 +23,14 @@ import java.util.Optional;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private static final String PRODUCT_IMAGES_DIR = "src/main/resources/products";
 
-    @Autowired
-    private ProductService productService;
 
+    private final ProductService productService;
+    private final ProductFilterDAO productFilterDAO;
 
 
     private void createFolder(){
@@ -42,11 +45,10 @@ public class ProductController {
     public ResponseEntity<Product> addProduct(
             @RequestParam("productName") String productName,
             @RequestParam("price") Double price,
-            @RequestParam("category") String category,
+            @RequestParam("category") int category,
+            @RequestParam("subCategory") int subCategory,
             @RequestParam("sellerId") Integer sellerId,
             @RequestParam("imageFile") MultipartFile imageFile,
-            @RequestParam("rate") Double rate,
-            @RequestParam("rateCount") Integer rateCount,
             @RequestParam("productCount") Integer productCount)
     {
         createFolder();
@@ -58,10 +60,11 @@ public class ProductController {
                     productName,
                     price,
                     category,
+                    subCategory,
                     imageFile.getOriginalFilename(),
                     sellerId,
-                    rate,
-                    rateCount,
+                    0.0,
+                    0,
                     productState,
                     productCount,
                     "Product still code not added",
@@ -121,7 +124,7 @@ public class ProductController {
     }
 
     @GetMapping("/get/all/{category}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category) {
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Integer category) {
         List<Product> products = productService.findByCategory(category);
         return ResponseEntity.ok(products);
     }
@@ -137,7 +140,8 @@ public class ProductController {
             @PathVariable Long id,
             @RequestParam("productName") String productName,
             @RequestParam("price") Double price,
-            @RequestParam("category") String category,
+            @RequestParam("category") int category,
+            @RequestParam("subCategory") int subCategory,
             @RequestParam("imageFile") MultipartFile imageFile) {
         Optional<Product> existingProduct = productService.findById(id);
         if (existingProduct.isPresent()) {
@@ -164,7 +168,7 @@ public class ProductController {
         System.out.println(imageFile.getOriginalFilename()+"oringal name");
         String[] nameParts = imageFile.getOriginalFilename().split("\\.");
         System.out.println(Arrays.toString(nameParts) + "name parts =========================");
-        String fileName = "file-" + imageId + (nameParts[nameParts.length-1]);
+        String fileName = "file-" + imageId +"."+ (nameParts[nameParts.length-1]);
         Path filePath = Paths.get(PRODUCT_IMAGES_DIR, fileName);
         Files.copy(imageFile.getInputStream(), filePath);
         return "http://localhost:8080/products/images/"+fileName;
@@ -178,5 +182,22 @@ public class ProductController {
             e.printStackTrace();
         }
     }
+
+    @GetMapping("/search/{text}/{category}/{subCategory}")
+    public List<Product> getProductsOnFilterObj(
+            @PathVariable String text,
+            @PathVariable int category,
+            @PathVariable int subCategory
+
+    ){
+       return productFilterDAO.findByFilterObj(text,category,subCategory);
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<Product>> saveProducts(@RequestBody List<Product> products) {
+        List<Product> savedProducts = productService.saveAll(products);
+        return ResponseEntity.ok(savedProducts);
+    }
+
 }
 

@@ -9,4 +9,5 @@ public interface CategoryService {
     Category editCategory(Long id, Category updatedCategory);
     Optional<Category> getCategoryById(Long id);
     List<Category> findAllCategories();
+    List<Category> saveAll(List<Category> categories);
 }

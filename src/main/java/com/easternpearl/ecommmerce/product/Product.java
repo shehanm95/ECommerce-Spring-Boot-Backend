@@ -27,7 +27,10 @@ public class Product {
     private Double price; // Product price
 
     @Column(name = "category", nullable = false)
-    private String category; // Product category
+    private Integer category; // Product category
+
+    @Column(name = "sub_category", nullable = false)
+    private Integer subCategory; // Product category
 
     @Column(name = "product_image_link", nullable = false)
     private String productImageLink; // Product image URL

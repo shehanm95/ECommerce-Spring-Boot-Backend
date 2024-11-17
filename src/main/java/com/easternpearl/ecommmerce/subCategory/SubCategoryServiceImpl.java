@@ -1,7 +1,8 @@
 package com.easternpearl.ecommmerce.subCategory;
 
-import com.easternpearl.ecommmerce.category.Category;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.easternpearl.ecommmerce.category.CategoryRepository;
+import com.easternpearl.ecommmerce.subCategory.DAO.SubCategoryRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,18 +12,18 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class SubCategoryServiceImpl implements SubCategoryService {
 
     private final SubCategoryRepository subCategoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    @Autowired
-    public SubCategoryServiceImpl(SubCategoryRepository subCategoryRepository) {
-        this.subCategoryRepository = subCategoryRepository;
-    }
 
     @Override
-    public SubCategory saveSubCategory(SubCategory subCategory) {
-        return subCategoryRepository.save(subCategory);
+    public SubCategory saveSubCategory(SubCategoryRequest subCategory) {
+        SubCategory sub = new SubCategory(0L, subCategory.subCategoryName(), subCategory.categoryId());
+
+        return subCategoryRepository.save(sub);
     }
 
     @Override
@@ -42,7 +43,11 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
-    public List<SubCategory> getSubCategoriesByCategory(Category category) {
-        return subCategoryRepository.findAllByCategory(category);
+    public List<SubCategory> getSubCategoriesByCategory(Long categoryId) {
+        return subCategoryRepository.findAllByCategoryId(categoryId);
+    }
+
+    public List<SubCategory> saveAll(List<SubCategory> subCategories) {
+        return subCategoryRepository.saveAll(subCategories);
     }
 }

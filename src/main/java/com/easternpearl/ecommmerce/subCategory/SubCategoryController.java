@@ -2,6 +2,7 @@ package com.easternpearl.ecommmerce.subCategory;
 
 import com.easternpearl.ecommmerce.category.Category;
 import com.easternpearl.ecommmerce.category.CategoryRepository;
+import com.easternpearl.ecommmerce.subCategory.DAO.SubCategoryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +23,13 @@ public class SubCategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-    @PostMapping
-    public ResponseEntity<SubCategory> createSubCategory(@RequestBody SubCategory subCategory) {
+    @PostMapping("/add")
+    public ResponseEntity<SubCategory> createSubCategory(@RequestBody SubCategoryRequest subCategory) {
         SubCategory createdSubCategory = subCategoryService.saveSubCategory(subCategory);
         return ResponseEntity.ok(createdSubCategory);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<SubCategory>> getAllSubCategories() {
         List<SubCategory> subCategories = subCategoryService.getAllSubCategories();
         return ResponseEntity.ok(subCategories);
@@ -40,7 +41,7 @@ public class SubCategoryController {
         return ResponseEntity.ok(subCategory);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteSubCategory(@PathVariable Long id) {
         subCategoryService.deleteSubCategoryById(id);
         return ResponseEntity.noContent().build();
@@ -49,10 +50,15 @@ public class SubCategoryController {
     // New endpoint to get subcategories by category ID
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<SubCategory>> getSubCategoriesByCategory(@PathVariable Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-        List<SubCategory> subCategories = subCategoryService.getSubCategoriesByCategory(category);
+        List<SubCategory> subCategories = subCategoryService.getSubCategoriesByCategory(categoryId);
         return ResponseEntity.ok(subCategories);
+    }
+
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<SubCategory>> saveSubCategories(@RequestBody List<SubCategory> subCategories) {
+        List<SubCategory> savedSubCategories = subCategoryService.saveAll(subCategories);
+        return ResponseEntity.ok(savedSubCategories);
     }
 }
 
