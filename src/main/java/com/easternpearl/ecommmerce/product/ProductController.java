@@ -1,5 +1,6 @@
 package com.easternpearl.ecommmerce.product;
 
+import com.easternpearl.ecommmerce.product.dto.ProductForBuyerDTO;
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
 import com.easternpearl.ecommmerce.product.repo.ProductFilterDAO;
 import lombok.RequiredArgsConstructor;
@@ -112,9 +113,9 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Product>> getAllProductsForCustomers() {
+    public ResponseEntity<List<ProductForBuyerDTO>> getAllProductsForCustomers() {
         List<Product> products = productService.findAllForCustomers();
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productService.convertListForBuyers(products));
     }
 
     @GetMapping("/get/{id}")
@@ -167,7 +168,6 @@ public class ProductController {
     private String saveImageFile(Long imageId , MultipartFile imageFile) throws IOException {
         System.out.println(imageFile.getOriginalFilename()+"oringal name");
         String[] nameParts = imageFile.getOriginalFilename().split("\\.");
-        System.out.println(Arrays.toString(nameParts) + "name parts =========================");
         String fileName = "file-" + imageId +"."+ (nameParts[nameParts.length-1]);
         Path filePath = Paths.get(PRODUCT_IMAGES_DIR, fileName);
         Files.copy(imageFile.getInputStream(), filePath);
@@ -197,6 +197,12 @@ public class ProductController {
     public ResponseEntity<List<Product>> saveProducts(@RequestBody List<Product> products) {
         List<Product> savedProducts = productService.saveAll(products);
         return ResponseEntity.ok(savedProducts);
+    }
+
+
+    @GetMapping("/forBuyer/all")
+    public ResponseEntity<List<ProductForBuyerDTO>> getProductsForBuyers(){
+        return ResponseEntity.ok(productService.getProductsForBuyers());
     }
 
 }

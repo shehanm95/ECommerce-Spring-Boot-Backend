@@ -156,7 +156,8 @@ public class UserController {
                     .contentType(mediaType)  // Set the correct media type based on file extension
                     .body(file);
         } else {
-            throw new RuntimeException("File not found: " + imageName);
+            System.out.println("File not found===============: " + imageName);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
