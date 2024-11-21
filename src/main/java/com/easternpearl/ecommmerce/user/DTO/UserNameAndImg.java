@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SellerNameAndImg {
+public class UserNameAndImg {
     String sellerName;
     String imageLink;
 }

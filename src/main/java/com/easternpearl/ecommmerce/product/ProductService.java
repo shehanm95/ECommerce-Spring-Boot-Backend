@@ -2,14 +2,13 @@ package com.easternpearl.ecommmerce.product;
 
 
 import com.easternpearl.ecommmerce.product.dto.ProductForBuyerDTO;
-import com.easternpearl.ecommmerce.user.DTO.SellerNameAndImg;
+import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
 import com.easternpearl.ecommmerce.user.rpo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-import com.easternpearl.ecommmerce.product.ProductRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +19,8 @@ public class ProductService {
    private final ProductRepository productRepository;
    private final ObjectMapper mapper;
    private final UserRepository userRepository;
+
+
 
     public Product save(Product product) {
         return productRepository.save(product);
@@ -60,19 +61,29 @@ public class ProductService {
                 .toList();
 
         for (int i = 0; i < buyerProductsList.size(); i++) {
-            //only if buyer exist
-            if(userRepository.existsById(buyerProductsList.get(i).getSellerId())) {
-                ProductForBuyerDTO p =  buyerProductsList.get(i);
-                SellerNameAndImg sellerDetails = userRepository.getSellerNameAndImgLink(p.getSellerId());
-                sellerDetails.setImageLink( MAIN_LINK+ sellerDetails.getImageLink());
-                p.setSellerDetails(sellerDetails);
-
-
-            }
+            addSellerDetailToProductForBuyerDto(buyerProductsList.get(i));
         }
 
 
         return buyerProductsList;
+    }
+
+    public ProductForBuyerDTO addSellerDetailToProductForBuyerDto(ProductForBuyerDTO product) {
+        if(userRepository.existsById(product.getSellerId())){
+            UserNameAndImg sellerDetails = getSellerNameAndImage(product.getSellerId());
+            product.setSellerDetails(sellerDetails);
+        }
+        return product;
+    }
+
+    public UserNameAndImg getSellerNameAndImage(int sellerId) {
+        if(userRepository.existsById(sellerId)){
+            UserNameAndImg sellerDetails = userRepository.getSellerNameAndImgLink(sellerId);
+            sellerDetails.setImageLink( MAIN_LINK+ sellerDetails.getImageLink());
+            return sellerDetails;
+        }
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@ Seller Not Found @@@@@@@@@@@@@@@@@");
+        return null;
     }
 }
 

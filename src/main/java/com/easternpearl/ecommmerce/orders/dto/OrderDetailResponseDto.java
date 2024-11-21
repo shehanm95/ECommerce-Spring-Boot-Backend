@@ -7,5 +7,6 @@ import lombok.Data;
 public class OrderDetailResponseDto {
     private ProductForBuyerDTO product;
     private Integer quantity;
+    private Integer sellerId;
 }
 

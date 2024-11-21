@@ -33,7 +33,7 @@ public class ProductFilterDAO {
         Predicate predicate = criteriaBuilder.conjunction(); // Start with a "true" predicate
 
         // Add text filter if text is not empty
-        if (text != null && !text.isEmpty()) {
+        if (text != null && !text.trim().isEmpty()) {
             Predicate productNamePredicate = criteriaBuilder.like(
                     root.get("productName"), "%" + text + "%"
             );
@@ -62,4 +62,5 @@ public class ProductFilterDAO {
         // Execute query and fetch results
         return em.createQuery(criteriaQuery).getResultList();
     }
+
 }

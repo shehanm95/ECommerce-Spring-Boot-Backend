@@ -1,6 +1,6 @@
 package com.easternpearl.ecommmerce.user.rpo;
 
-import com.easternpearl.ecommmerce.user.DTO.SellerNameAndImg;
+import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
 import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("SELECT new com.easternpearl.ecommmerce.user.DTO.SellerNameAndImg" +
             "(u.username, u.imageLink) " +
             "FROM UserEntity u WHERE u.id = :id")
-    SellerNameAndImg getSellerNameAndImgLink(@Param("id") Integer id);
+    UserNameAndImg getSellerNameAndImgLink(@Param("id") Integer id);
 
 }
 

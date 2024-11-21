@@ -1,9 +1,11 @@
 package com.easternpearl.ecommmerce.orders.controller;
 
 
+import com.easternpearl.ecommmerce.orders.Entity.OrderDetail;
 import com.easternpearl.ecommmerce.orders.Entity.SellerOrder;
 import com.easternpearl.ecommmerce.orders.dto.OrderRequestDto;
 import com.easternpearl.ecommmerce.orders.dto.OrderResponseDto;
+import com.easternpearl.ecommmerce.orders.dto.SellerOrderResponseDto;
 import com.easternpearl.ecommmerce.orders.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,9 +43,21 @@ public class OrderController {
 
 
     @GetMapping("/seller/{sellerId}")
-    public List<SellerOrder> getSellerOrdersOnSellerId(Integer sellerId){
+    public List<SellerOrderResponseDto> getSellerOrdersOnSellerId(Integer sellerId){
         return orderService.getSellerOrdersOnSellerId(sellerId);
     }
 
+
+    /**
+     * Get all order details for a specific order ID.
+     *
+     * @param orderId the ID of the order
+     * @return a list of order details for the specified order
+     */
+    @GetMapping("/details/{orderId}")
+    public ResponseEntity<List<OrderDetail>> getOrderDetailsByOrderId(@PathVariable Long orderId) {
+        List<OrderDetail> orderDetails = orderService.getOrderDetailsByOrderId(orderId);
+        return new ResponseEntity<>(orderDetails, HttpStatus.OK);
+    }
 
 }

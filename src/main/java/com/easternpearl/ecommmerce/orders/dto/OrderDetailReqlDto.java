@@ -3,7 +3,7 @@ package com.easternpearl.ecommmerce.orders.dto;
 import lombok.Data;
 
 @Data
-public class OrderDetaiReqlDto {
+public class OrderDetailReqlDto {
     private Long productId;
     private Integer sellerId;
     private Integer quantity;

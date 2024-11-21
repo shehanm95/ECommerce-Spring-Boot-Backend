@@ -2,7 +2,6 @@ package com.easternpearl.ecommmerce.user.service.impl;
 
 import com.easternpearl.ecommmerce.user.DAO.LoginDAO;
 import com.easternpearl.ecommmerce.user.DAO.RegisterDAO;
-import com.easternpearl.ecommmerce.user.DTO.SellerNameAndImg;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
@@ -140,7 +139,6 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Error saving image for user " + username, e);
         }
     }
-
 
 
 }

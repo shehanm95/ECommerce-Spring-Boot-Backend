@@ -40,7 +40,4 @@ public class Orders {
     private OrderStatus status; // "Pending", "Shipped", "Delivered"
 
     private LocalDateTime endDate;
-
-
-
 }

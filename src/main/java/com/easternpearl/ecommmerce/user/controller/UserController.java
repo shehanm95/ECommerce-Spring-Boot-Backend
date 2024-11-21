@@ -6,7 +6,6 @@ import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
 import com.easternpearl.ecommmerce.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
@@ -128,6 +126,7 @@ public class UserController {
         return userService.findByRole(role);
     }
 
+
     @GetMapping("/{id}")
     public UserDTO findById(@PathVariable Integer id) {
         return userService.findById(id).orElse(null);
@@ -160,6 +159,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
 
     // Helper method to determine the media type based on the file extension
     private MediaType getMediaTypeForImage(@NotNull String imageName) {

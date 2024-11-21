@@ -1,10 +1,11 @@
 package com.easternpearl.ecommmerce.product;
 
 import com.easternpearl.ecommmerce.product.dto.ProductForBuyerDTO;
+import com.easternpearl.ecommmerce.product.model.FilterObj;
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
 import com.easternpearl.ecommmerce.product.repo.ProductFilterDAO;
+import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -184,13 +184,20 @@ public class ProductController {
     }
 
     @GetMapping("/search/{text}/{category}/{subCategory}")
-    public List<Product> getProductsOnFilterObj(
-            @PathVariable String text,
+    public List<Product> getProductsOnFilterParams(
+            @PathVariable(required = false) String text,
             @PathVariable int category,
             @PathVariable int subCategory
 
     ){
        return productFilterDAO.findByFilterObj(text,category,subCategory);
+    }
+ @PostMapping("/filter")
+    public List<Product> getProductsOnFilterObj(
+         @RequestBody FilterObj filterObj
+
+         ){
+       return productFilterDAO.findByFilterObj(filterObj.getText(),filterObj.getCategory(),filterObj.getSubCategory());
     }
 
     @PostMapping("/bulk")
@@ -204,6 +211,12 @@ public class ProductController {
     public ResponseEntity<List<ProductForBuyerDTO>> getProductsForBuyers(){
         return ResponseEntity.ok(productService.getProductsForBuyers());
     }
+
+    @GetMapping("/sellerDetails/{sellerId}")
+    public UserNameAndImg getSellerDetails(@PathVariable Integer sellerId){
+        return productService.getSellerNameAndImage(sellerId);
+    }
+
 
 }
 

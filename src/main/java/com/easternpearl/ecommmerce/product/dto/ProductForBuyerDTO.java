@@ -1,8 +1,7 @@
 package com.easternpearl.ecommmerce.product.dto;
 
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
-import com.easternpearl.ecommmerce.user.DTO.SellerNameAndImg;
-import jakarta.persistence.*;
+import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,5 +24,5 @@ public class ProductForBuyerDTO {
     private String productCode;
     private Boolean isNew;
 
-    private SellerNameAndImg sellerDetails;
+    private UserNameAndImg sellerDetails;
 }

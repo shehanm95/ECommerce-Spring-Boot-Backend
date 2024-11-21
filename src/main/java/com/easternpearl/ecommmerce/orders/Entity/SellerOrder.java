@@ -36,7 +36,7 @@ public class SellerOrder {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus; // "Pending", "Shipped", "Delivered"
-    
+
 
     @OneToMany(mappedBy = "sellerOrder")
     private List<SellerOrderDetail> sellerOrderDetails;
@@ -44,7 +44,4 @@ public class SellerOrder {
     @ManyToOne
     @JoinColumn(name = "buyer_order_id")
     private Orders buyerOrder;
-
-
-
 }

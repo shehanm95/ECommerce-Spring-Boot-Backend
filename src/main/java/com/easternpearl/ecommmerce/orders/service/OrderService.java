@@ -5,10 +5,7 @@ import com.easternpearl.ecommmerce.orders.Entity.Orders;
 import com.easternpearl.ecommmerce.orders.Entity.SellerOrder;
 import com.easternpearl.ecommmerce.orders.Entity.SellerOrderDetail;
 import com.easternpearl.ecommmerce.orders.Entity.enums.OrderStatus;
-import com.easternpearl.ecommmerce.orders.dto.OrderDetaiReqlDto;
-import com.easternpearl.ecommmerce.orders.dto.OrderDetailResponseDto;
-import com.easternpearl.ecommmerce.orders.dto.OrderRequestDto;
-import com.easternpearl.ecommmerce.orders.dto.OrderResponseDto;
+import com.easternpearl.ecommmerce.orders.dto.*;
 import com.easternpearl.ecommmerce.orders.repo.OrderDetailRepository;
 import com.easternpearl.ecommmerce.orders.repo.OrdersRepository;
 import com.easternpearl.ecommmerce.product.Product;
@@ -18,8 +15,6 @@ import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import com.easternpearl.ecommmerce.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,13 +50,14 @@ public class OrderService {
         Orders order = new Orders();
         order.setBuyer(mapper.convertValue(buyer , UserEntity.class));
         order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.Pending);
         order.setTotalAmount(0.0);
 
         // Step 3: Create OrderDetails and Deduct Stock
         double totalAmount = 0.0;
         List<OrderDetail> orderDetails = new ArrayList<>();
 
-        for (OrderDetaiReqlDto productOrder : orderRequest.getOrderDetails()) {
+        for (OrderDetailReqlDto productOrder : orderRequest.getOrderDetails()) {
             Product product = productService.findById(productOrder.getProductId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid Product ID"));
 
@@ -177,6 +173,7 @@ public class OrderService {
                     OrderDetailResponseDto responseDto = new OrderDetailResponseDto();
                     responseDto.setProduct(productDto);
                     responseDto.setQuantity(detail.getQuantity());
+
                     return responseDto;
                 })
                 .toList();
@@ -192,33 +189,50 @@ public class OrderService {
 
     }
 
-    public List<SellerOrder> getSellerOrdersOnSellerId(Integer sellerId){
-        return sellerOrderRepository.findAllBySellerId(sellerId);
+    public List<SellerOrderResponseDto> getSellerOrdersOnSellerId(Integer sellerId){
+        return sellerOrderRepository.findAllBySellerId(sellerId).stream()
+                .map(order ->{
+                    SellerOrderResponseDto sellerOrder = mapper.convertValue(order,SellerOrderResponseDto.class);
+                    sellerOrder.setBuyerOrderId(order.getBuyerOrder().getId());
+                    sellerOrder.setUserNameAndImg(productService.getSellerNameAndImage(order.getSellerId()));
+                    for(SellerOrderDetail detail : order.getSellerOrderDetails()){
+                        sellerOrder.getSellerOrderDetailsDto().add(mapper.convertValue(detail,SellerOrderDetailResponseDto.class));
+                    }
+                    return sellerOrder;
+                }).toList();
+
     }
 
 
     public List<OrderResponseDto> getOrdersByBuyerId(Integer buyerId) {
         List<Orders> orders = ordersRepository.findByBuyerId(buyerId);
-
         return orders.stream().map(order -> {
             OrderResponseDto orderResponse = new OrderResponseDto();
             orderResponse.setOrderId(order.getId());
             orderResponse.setTotalAmount(order.getTotalAmount());
             orderResponse.setStatus(order.getStatus()); // Include order status
             orderResponse.setOrderDate(order.getOrderDate()); // Include order date
-
             // Map OrderDetails to OrderDetailResponseDto
             List<OrderDetailResponseDto> orderDetailDtos = order.getOrderDetails().stream()
                     .map(detail -> {
                         OrderDetailResponseDto detailDto = new OrderDetailResponseDto();
+                        detailDto.setSellerId(detail.getSellerId());
                         detailDto.setProduct(mapper.convertValue(detail.getProduct(), ProductForBuyerDTO.class));
                         detailDto.setQuantity(detail.getQuantity());
+                        detailDto.getProduct().setSellerDetails(productService.getSellerNameAndImage(detail.getSellerId()));
+                        System.out.println(detailDto);
                         return detailDto;
                     })
                     .toList();
-
             orderResponse.setOrderDetails(orderDetailDtos);
             return orderResponse;
         }).toList();
     }
+
+
+    public List<OrderDetail> getOrderDetailsByOrderId(Long orderId) {
+        return orderDetailRepository.findByOrderId(orderId);
+    }
+
+
 }
