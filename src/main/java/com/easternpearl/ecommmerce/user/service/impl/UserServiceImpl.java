@@ -1,8 +1,12 @@
 package com.easternpearl.ecommmerce.user.service.impl;
 
+import com.easternpearl.ecommmerce.orders.Entity.SellerOrder;
 import com.easternpearl.ecommmerce.orders.Entity.SellerOrderDetail;
+import com.easternpearl.ecommmerce.orders.dto.OrderDetailResponseDto;
+import com.easternpearl.ecommmerce.orders.dto.OrderResponseDto;
 import com.easternpearl.ecommmerce.orders.dto.SellerOrderDetailResponseDto;
-import com.easternpearl.ecommmerce.orders.repo.OrdersRepository;
+import com.easternpearl.ecommmerce.orders.dto.SellerOrderResponseDto;
+import com.easternpearl.ecommmerce.orders.service.OrderService;
 import com.easternpearl.ecommmerce.orders.service.SellerOrderDetailRepository;
 import com.easternpearl.ecommmerce.orders.service.SellerOrderRepository;
 import com.easternpearl.ecommmerce.product.ProductRepository;
@@ -10,6 +14,8 @@ import com.easternpearl.ecommmerce.product.ProductService;
 import com.easternpearl.ecommmerce.user.DAO.LoginDAO;
 import com.easternpearl.ecommmerce.user.DAO.RegisterDAO;
 import com.easternpearl.ecommmerce.user.DTO.AdminStaticsDto;
+import com.easternpearl.ecommmerce.user.DTO.BuyerStaticsDto;
+import com.easternpearl.ecommmerce.user.DTO.SellerStaticsDto;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
@@ -19,6 +25,7 @@ import com.easternpearl.ecommmerce.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,13 +44,27 @@ import static org.springframework.web.util.UriUtils.extractFileExtension;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    @Lazy
     @Autowired
-    private final UserRepository userRepository;
-    private final ObjectMapper mapper;
-    private final SellerOrderRepository sellerOrderRepository;
-    private final SellerOrderDetailRepository sellerOrderDetailRepository;
-    private final ProductService productService;
-    private final ProductRepository productRepository;
+    private  UserRepository userRepository;
+    @Lazy
+    @Autowired
+    private ObjectMapper mapper;
+    @Lazy
+    @Autowired
+    private SellerOrderRepository sellerOrderRepository;
+    @Lazy
+    @Autowired
+    private SellerOrderDetailRepository sellerOrderDetailRepository;
+    @Lazy
+    @Autowired
+    private ProductService productService;
+    @Lazy
+    @Autowired
+    private ProductRepository productRepository;
+    @Lazy
+    @Autowired
+    private OrderService orderService;
 
 
     private final Path imagePath = Paths.get("src/main/resources/images/user");
@@ -149,6 +170,49 @@ public class UserServiceImpl implements UserService {
         );
 
         return statics;
+    }
+
+    @Override
+    public SellerStaticsDto getSellerStatics(Integer sellerID) {
+        List<SellerOrderResponseDto> sellerOrders = orderService.getSellerOrdersOnSellerId(sellerID);
+        long allOrdersCount = sellerOrders.size();
+        long soldProductCount = 0;
+        double totalRevenue = 0;
+
+        for (SellerOrderResponseDto order : sellerOrders){
+            totalRevenue += order.getOrderAmount();
+            for(SellerOrderDetailResponseDto detail : order.getSellerOrderDetailsDto()){
+                soldProductCount += detail.getQuantity();
+            }
+        }
+
+        return new SellerStaticsDto(
+                allOrdersCount,
+                soldProductCount,
+                totalRevenue
+        );
+    }
+
+    @Override
+    public BuyerStaticsDto getBuyerStatics(Integer buyerId) {
+        long allOrdersCount=0;
+        long boughtProductCount=0;
+        double totalSpent=0.0;
+        List<OrderResponseDto> ordersByBuyer =  orderService.getOrdersByBuyerId(buyerId);
+
+        allOrdersCount = ordersByBuyer.size();
+
+        for(OrderResponseDto order : ordersByBuyer){
+            List<OrderDetailResponseDto> details =  order.getOrderDetails();
+            for(OrderDetailResponseDto detail : details){
+                boughtProductCount += detail.getQuantity();
+                totalSpent += (detail.getProduct().getPrice() *detail.getQuantity());
+            }
+        }
+
+        return new BuyerStaticsDto(allOrdersCount,
+                boughtProductCount,
+                totalSpent);
     }
 
 

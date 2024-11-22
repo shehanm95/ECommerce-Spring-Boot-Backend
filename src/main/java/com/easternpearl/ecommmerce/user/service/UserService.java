@@ -3,6 +3,8 @@ package com.easternpearl.ecommmerce.user.service;
 import com.easternpearl.ecommmerce.user.DAO.LoginDAO;
 import com.easternpearl.ecommmerce.user.DAO.RegisterDAO;
 import com.easternpearl.ecommmerce.user.DTO.AdminStaticsDto;
+import com.easternpearl.ecommmerce.user.DTO.BuyerStaticsDto;
+import com.easternpearl.ecommmerce.user.DTO.SellerStaticsDto;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,4 +22,8 @@ public interface UserService {
     void deleteUser(int id);
 
     AdminStaticsDto getAdminStatics();
+
+    SellerStaticsDto getSellerStatics(Integer sellerID);
+
+    BuyerStaticsDto getBuyerStatics(Integer buyerId);
 }

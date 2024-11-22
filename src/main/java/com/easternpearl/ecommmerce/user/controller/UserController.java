@@ -3,6 +3,8 @@ package com.easternpearl.ecommmerce.user.controller;
 import com.easternpearl.ecommmerce.user.DAO.LoginDAO;
 import com.easternpearl.ecommmerce.user.DAO.RegisterDAO;
 import com.easternpearl.ecommmerce.user.DTO.AdminStaticsDto;
+import com.easternpearl.ecommmerce.user.DTO.BuyerStaticsDto;
+import com.easternpearl.ecommmerce.user.DTO.SellerStaticsDto;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
 import com.easternpearl.ecommmerce.user.service.UserService;
@@ -174,8 +176,16 @@ public class UserController {
     }
 
     @GetMapping("/adminStatics")
-    public AdminStaticsDto getAdminStatics(){
+    public AdminStaticsDto getSellerStatics(){
         return userService.getAdminStatics();
+    }
+    @GetMapping("/sellerStatics/{sellerId}")
+    public SellerStaticsDto getSellerStatics(@PathVariable Integer sellerId){
+        return userService.getSellerStatics(sellerId);
+    }
+    @GetMapping("/buyerStatics/{buyerId}")
+    public BuyerStaticsDto getBuyerStatics(@PathVariable Integer buyerId){
+        return userService.getBuyerStatics(buyerId);
     }
 }
 
