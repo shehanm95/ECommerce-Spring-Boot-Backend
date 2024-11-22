@@ -85,5 +85,9 @@ public class ProductService {
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@ Seller Not Found @@@@@@@@@@@@@@@@@");
         return null;
     }
+
+    public ProductForBuyerDTO getProductById(Long productId) {
+        return mapper.convertValue(productRepository.findById(productId),ProductForBuyerDTO.class);
+    }
 }
 

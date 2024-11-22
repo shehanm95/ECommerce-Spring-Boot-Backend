@@ -1,13 +1,13 @@
 package com.easternpearl.ecommmerce.orders.Entity;
 
 import com.easternpearl.ecommmerce.orders.Entity.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,9 +39,11 @@ public class SellerOrder {
 
 
     @OneToMany(mappedBy = "sellerOrder")
+    @JsonIgnore
     private List<SellerOrderDetail> sellerOrderDetails;
 
     @ManyToOne
     @JoinColumn(name = "buyer_order_id")
+    @JsonIgnore
     private Orders buyerOrder;
 }

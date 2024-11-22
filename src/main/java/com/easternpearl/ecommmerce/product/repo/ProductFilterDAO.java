@@ -24,7 +24,8 @@ public class ProductFilterDAO {
             Integer subCategory
     ) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Product> criteriaQuery = criteriaBuilder.createQuery(Product.class);
+        CriteriaQuery<Product> criteriaQuery = criteriaBuilder
+                .createQuery(Product.class);
 
         // SELECT * FROM Product;
         Root<Product> root = criteriaQuery.from(Product.class);

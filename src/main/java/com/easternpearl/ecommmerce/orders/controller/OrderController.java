@@ -43,7 +43,8 @@ public class OrderController {
 
 
     @GetMapping("/seller/{sellerId}")
-    public List<SellerOrderResponseDto> getSellerOrdersOnSellerId(Integer sellerId){
+    public List<SellerOrderResponseDto> getSellerOrdersOnSellerId(@PathVariable Integer sellerId){
+        System.out.println("getSellerOrdersOnSellerId ======== : "+ sellerId);
         return orderService.getSellerOrdersOnSellerId(sellerId);
     }
 

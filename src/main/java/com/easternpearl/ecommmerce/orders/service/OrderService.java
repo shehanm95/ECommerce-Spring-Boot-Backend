@@ -9,6 +9,7 @@ import com.easternpearl.ecommmerce.orders.dto.*;
 import com.easternpearl.ecommmerce.orders.repo.OrderDetailRepository;
 import com.easternpearl.ecommmerce.orders.repo.OrdersRepository;
 import com.easternpearl.ecommmerce.product.Product;
+import com.easternpearl.ecommmerce.product.ProductRepository;
 import com.easternpearl.ecommmerce.product.ProductService;
 import com.easternpearl.ecommmerce.product.dto.ProductForBuyerDTO;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +35,7 @@ public class OrderService {
     private final SellerOrderRepository sellerOrderRepository;
     private final SellerOrderDetailRepository sellerOrderDetailRepository;
     private final ObjectMapper mapper;
+    private final ProductRepository productRepository;
 
 
     @Transactional
@@ -191,16 +192,26 @@ public class OrderService {
 
     public List<SellerOrderResponseDto> getSellerOrdersOnSellerId(Integer sellerId){
         return sellerOrderRepository.findAllBySellerId(sellerId).stream()
-                .map(order ->{
-                    SellerOrderResponseDto sellerOrder = mapper.convertValue(order,SellerOrderResponseDto.class);
-                    sellerOrder.setBuyerOrderId(order.getBuyerOrder().getId());
-                    sellerOrder.setUserNameAndImg(productService.getSellerNameAndImage(order.getSellerId()));
-                    for(SellerOrderDetail detail : order.getSellerOrderDetails()){
-                        sellerOrder.getSellerOrderDetailsDto().add(mapper.convertValue(detail,SellerOrderDetailResponseDto.class));
-                    }
-                    return sellerOrder;
-                }).toList();
+            .map(order ->{
+                SellerOrderResponseDto sellerOrder = mapper
+                        .convertValue(order,SellerOrderResponseDto.class);
+                sellerOrder.setBuyerOrderId(order.getBuyerOrder().getId());
+                sellerOrder.setUserNameAndImg(productService
+                        .getSellerNameAndImage(order.getSellerId()));
 
+                for(SellerOrderDetail detail : order.getSellerOrderDetails()){
+                    SellerOrderDetailResponseDto resDetail = mapper
+                            .convertValue(detail,SellerOrderDetailResponseDto.class);
+
+                    resDetail.setProduct(mapper.convertValue(productRepository.findById(detail.getProductId()),ProductForBuyerDTO.class));
+
+                    sellerOrder.getSellerOrderDetailsDto().add(resDetail);
+
+
+                }
+                //System.out.println("seller order ============: " + sellerOrder);
+                return sellerOrder;
+            }).toList();
     }
 
 

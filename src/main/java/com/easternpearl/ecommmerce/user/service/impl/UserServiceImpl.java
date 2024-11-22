@@ -1,7 +1,15 @@
 package com.easternpearl.ecommmerce.user.service.impl;
 
+import com.easternpearl.ecommmerce.orders.Entity.SellerOrderDetail;
+import com.easternpearl.ecommmerce.orders.dto.SellerOrderDetailResponseDto;
+import com.easternpearl.ecommmerce.orders.repo.OrdersRepository;
+import com.easternpearl.ecommmerce.orders.service.SellerOrderDetailRepository;
+import com.easternpearl.ecommmerce.orders.service.SellerOrderRepository;
+import com.easternpearl.ecommmerce.product.ProductRepository;
+import com.easternpearl.ecommmerce.product.ProductService;
 import com.easternpearl.ecommmerce.user.DAO.LoginDAO;
 import com.easternpearl.ecommmerce.user.DAO.RegisterDAO;
+import com.easternpearl.ecommmerce.user.DTO.AdminStaticsDto;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
@@ -32,6 +40,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private final UserRepository userRepository;
     private final ObjectMapper mapper;
+    private final SellerOrderRepository sellerOrderRepository;
+    private final SellerOrderDetailRepository sellerOrderDetailRepository;
+    private final ProductService productService;
+    private final ProductRepository productRepository;
 
 
     private final Path imagePath = Paths.get("src/main/resources/images/user");
@@ -106,6 +118,38 @@ public class UserServiceImpl implements UserService {
         });
     }
 
+    @Override
+    public AdminStaticsDto getAdminStatics() {
+        long allUsersCount = userRepository.count();
+        long allOrdersCount = sellerOrderRepository.count();
+        long soldProductCount = 0;
+        double totalRevenue = 0;
+        List<SellerOrderDetailResponseDto> details = sellerOrderDetailRepository.findAll().stream()
+                .map(detail ->{
+                            SellerOrderDetailResponseDto dto = mapper.convertValue(detail,SellerOrderDetailResponseDto.class);
+                            dto.setProduct(productService.getProductById(detail.getProductId()));
+                return dto;
+                }
+                )
+                .toList();
+
+        for (SellerOrderDetailResponseDto detail : details){
+            if(detail.getProduct()!= null){
+                soldProductCount +=detail.getQuantity();
+                totalRevenue += (detail.getProduct().getPrice() * detail.getQuantity());
+            }
+        }
+
+
+        AdminStaticsDto statics = new AdminStaticsDto(
+                allUsersCount,
+                allOrdersCount,
+                soldProductCount,
+                totalRevenue
+        );
+
+        return statics;
+    }
 
 
     private String encryptPassword(String password) {

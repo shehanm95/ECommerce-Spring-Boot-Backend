@@ -2,6 +2,7 @@ package com.easternpearl.ecommmerce.user.controller;
 
 import com.easternpearl.ecommmerce.user.DAO.LoginDAO;
 import com.easternpearl.ecommmerce.user.DAO.RegisterDAO;
+import com.easternpearl.ecommmerce.user.DTO.AdminStaticsDto;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
 import com.easternpearl.ecommmerce.user.service.UserService;
@@ -170,6 +171,11 @@ public class UserController {
         } else {
             return MediaType.APPLICATION_OCTET_STREAM; // Default type for unsupported formats
         }
+    }
+
+    @GetMapping("/adminStatics")
+    public AdminStaticsDto getAdminStatics(){
+        return userService.getAdminStatics();
     }
 }
 

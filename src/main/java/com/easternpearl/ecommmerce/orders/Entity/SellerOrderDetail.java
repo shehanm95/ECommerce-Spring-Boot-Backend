@@ -1,6 +1,8 @@
 package com.easternpearl.ecommmerce.orders.Entity;
 
 import com.easternpearl.ecommmerce.product.Product;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +20,7 @@ public class SellerOrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "seller_order_id", nullable = false)
+    @JsonIgnore
     private SellerOrder sellerOrder;
 
 
