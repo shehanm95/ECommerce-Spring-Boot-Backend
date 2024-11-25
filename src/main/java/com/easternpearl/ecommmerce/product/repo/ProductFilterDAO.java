@@ -1,7 +1,7 @@
 package com.easternpearl.ecommmerce.product.repo;
 
 
-import com.easternpearl.ecommmerce.product.Product;
+import com.easternpearl.ecommmerce.product.model.ProductEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -18,17 +18,17 @@ public class ProductFilterDAO {
 
     private final EntityManager em;
 
-    public List<Product> findByFilterObj(
+    public List<ProductEntity> findByFilterObj(
             String text,
             Integer category,
             Integer subCategory
     ) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Product> criteriaQuery = criteriaBuilder
-                .createQuery(Product.class);
+        CriteriaQuery<ProductEntity> criteriaQuery = criteriaBuilder
+                .createQuery(ProductEntity.class);
 
         // SELECT * FROM Product;
-        Root<Product> root = criteriaQuery.from(Product.class);
+        Root<ProductEntity> root = criteriaQuery.from(ProductEntity.class);
 
         // Prepare predicates (WHERE conditions)
         Predicate predicate = criteriaBuilder.conjunction(); // Start with a "true" predicate

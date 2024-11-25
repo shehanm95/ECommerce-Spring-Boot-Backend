@@ -8,10 +8,10 @@ import com.easternpearl.ecommmerce.orders.Entity.enums.OrderStatus;
 import com.easternpearl.ecommmerce.orders.dto.*;
 import com.easternpearl.ecommmerce.orders.repo.OrderDetailRepository;
 import com.easternpearl.ecommmerce.orders.repo.OrdersRepository;
-import com.easternpearl.ecommmerce.product.Product;
-import com.easternpearl.ecommmerce.product.ProductRepository;
 import com.easternpearl.ecommmerce.product.ProductService;
 import com.easternpearl.ecommmerce.product.dto.ProductForBuyerDTO;
+import com.easternpearl.ecommmerce.product.model.ProductEntity;
+import com.easternpearl.ecommmerce.product.repo.ProductRepository;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import com.easternpearl.ecommmerce.user.service.UserService;
@@ -59,37 +59,37 @@ public class OrderService {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         for (OrderDetailReqlDto productOrder : orderRequest.getOrderDetails()) {
-            Product product = productService.findById(productOrder.getProductId())
+            ProductEntity productEntity = productService.findById(productOrder.getProductId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid Product ID"));
 
             // Check stock availability
-            if (product.getProductCount() < productOrder.getQuantity()) {
+            if (productEntity.getProductCount() < productOrder.getQuantity()) {
                 throw new IllegalArgumentException(
-                        "Insufficient stock for product: " + product.getProductName());
+                        "Insufficient stock for product: " + productEntity.getProductName());
             }
 
             // Deduct stock
-            product.setProductCount(product.getProductCount() - productOrder.getQuantity());
-            productService.save(product);
+            productEntity.setProductCount(productEntity.getProductCount() - productOrder.getQuantity());
+            productService.save(productEntity);
 
             // Create and add OrderDetail
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(order);
-            orderDetail.setSellerId(product.getSellerId());
-            orderDetail.setProduct(product);
+            orderDetail.setSellerId(productEntity.getSellerId());
+            orderDetail.setProductEntity(productEntity);
             orderDetail.setQuantity(productOrder.getQuantity());
-            orderDetail.setPrice(product.getPrice());
+            orderDetail.setPrice(productEntity.getPrice());
             orderDetails.add(orderDetail);
             System.out.println("************************ STARTED SETTING SELLER ORDER ************");
             // setting seller order
             boolean addedInLoop = false;
             for (int i = 0; i < sellerOrders.size(); i++) {
                 SellerOrder sellerOrder = sellerOrders.get(i);
-                if (sellerOrder.getSellerId().equals(product.getSellerId())) {
+                if (sellerOrder.getSellerId().equals(productEntity.getSellerId())) {
                     SellerOrderDetail sellerOrderDetail = new SellerOrderDetail(
                             0L,
                             sellerOrder,
-                            product.getId(),
+                            productEntity.getId(),
                             productOrder.getQuantity()
                     );
                     sellerOrder.getSellerOrderDetails().add(sellerOrderDetail);
@@ -100,18 +100,18 @@ public class OrderService {
             if(!addedInLoop){
 
                     SellerOrder newSellerOrder = new SellerOrder();
-                    newSellerOrder.setSellerId(product.getSellerId());
+                    newSellerOrder.setSellerId(productEntity.getSellerId());
                     newSellerOrder.setBuyerId(orderRequest.getBuyerId());
                     newSellerOrder.setReceivedDate(LocalDateTime.now());
                     newSellerOrder.setOrderStatus( OrderStatus.Pending);
-                newSellerOrder.setOrderAmount(product.getPrice() * productOrder.getQuantity());
+                newSellerOrder.setOrderAmount(productEntity.getPrice() * productOrder.getQuantity());
                 newSellerOrder.setTotalProducts(productOrder.getQuantity());
                     newSellerOrder.setSellerOrderDetails(new ArrayList<SellerOrderDetail>());
 
                     SellerOrderDetail sellerOrderDetail = new SellerOrderDetail(
                             0L,
                             newSellerOrder,
-                            product.getId(),
+                            productEntity.getId(),
                             productOrder.getQuantity()
                     );
                     newSellerOrder.getSellerOrderDetails().add(sellerOrderDetail);
@@ -122,7 +122,7 @@ public class OrderService {
 
             System.out.println("************************ FiniSHED SETTING SELLER ORDER ************");
             // Calculate total amount
-            totalAmount += product.getPrice() * productOrder.getQuantity();
+            totalAmount += productEntity.getPrice() * productOrder.getQuantity();
         }
 
         // Step 4: Save Order and OrderDetails
@@ -142,9 +142,9 @@ public class OrderService {
 
             for (SellerOrderDetail detail : sellerOrder.getSellerOrderDetails()) {
                 productCount += detail.getQuantity();
-                Product product = productService.findById(detail.getProductId())
+                ProductEntity productEntity = productService.findById(detail.getProductId())
                         .orElseThrow(() -> new IllegalArgumentException("Invalid Product ID"));
-                orderAmount += detail.getQuantity() * product.getPrice();
+                orderAmount += detail.getQuantity() * productEntity.getPrice();
             }
 
             sellerOrder.setOrderAmount(orderAmount);
@@ -170,7 +170,7 @@ public class OrderService {
         // Step 6: Map to Response DTO
         List<OrderDetailResponseDto> orderDetailResponseDtos = orderDetails.stream()
                 .map(detail -> {
-                    ProductForBuyerDTO productDto = mapper.convertValue(detail.getProduct(), ProductForBuyerDTO.class);
+                    ProductForBuyerDTO productDto = mapper.convertValue(detail.getProductEntity(), ProductForBuyerDTO.class);
                     OrderDetailResponseDto responseDto = new OrderDetailResponseDto();
                     responseDto.setProduct(productDto);
                     responseDto.setQuantity(detail.getQuantity());
@@ -228,7 +228,7 @@ public class OrderService {
                     .map(detail -> {
                         OrderDetailResponseDto detailDto = new OrderDetailResponseDto();
                         detailDto.setSellerId(detail.getSellerId());
-                        detailDto.setProduct(mapper.convertValue(detail.getProduct(), ProductForBuyerDTO.class));
+                        detailDto.setProduct(mapper.convertValue(detail.getProductEntity(), ProductForBuyerDTO.class));
                         detailDto.setQuantity(detail.getQuantity());
                         detailDto.getProduct().setSellerDetails(productService.getSellerNameAndImage(detail.getSellerId()));
                         System.out.println(detailDto);

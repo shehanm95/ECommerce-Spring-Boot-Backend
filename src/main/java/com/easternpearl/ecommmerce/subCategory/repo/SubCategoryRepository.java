@@ -1,6 +1,6 @@
-package com.easternpearl.ecommmerce.subCategory;
+package com.easternpearl.ecommmerce.subCategory.repo;
 
-import com.easternpearl.ecommmerce.category.Category;
+import com.easternpearl.ecommmerce.subCategory.entity.SubCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,5 @@
 package com.easternpearl.ecommmerce.orders.Entity;
-import com.easternpearl.ecommmerce.product.Product;
-import com.easternpearl.ecommmerce.user.entity.UserEntity;
+import com.easternpearl.ecommmerce.product.model.ProductEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +22,7 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    private ProductEntity productEntity;
 
     @Column(nullable = false)
     private Integer quantity;

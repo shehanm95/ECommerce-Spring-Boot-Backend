@@ -1,5 +1,8 @@
-package com.easternpearl.ecommmerce.category;
+package com.easternpearl.ecommmerce.category.service.imp;
 
+import com.easternpearl.ecommmerce.category.entity.Category;
+import com.easternpearl.ecommmerce.category.repo.CategoryRepository;
+import com.easternpearl.ecommmerce.category.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

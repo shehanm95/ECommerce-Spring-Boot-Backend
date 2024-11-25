@@ -9,8 +9,9 @@ import com.easternpearl.ecommmerce.orders.dto.SellerOrderResponseDto;
 import com.easternpearl.ecommmerce.orders.service.OrderService;
 import com.easternpearl.ecommmerce.orders.service.SellerOrderDetailRepository;
 import com.easternpearl.ecommmerce.orders.service.SellerOrderRepository;
-import com.easternpearl.ecommmerce.product.ProductRepository;
+
 import com.easternpearl.ecommmerce.product.ProductService;
+import com.easternpearl.ecommmerce.product.repo.ProductRepository;
 import com.easternpearl.ecommmerce.user.DAO.LoginDAO;
 import com.easternpearl.ecommmerce.user.DAO.RegisterDAO;
 import com.easternpearl.ecommmerce.user.DTO.AdminStaticsDto;

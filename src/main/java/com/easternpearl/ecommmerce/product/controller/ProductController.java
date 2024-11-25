@@ -1,7 +1,9 @@
-package com.easternpearl.ecommmerce.product;
+package com.easternpearl.ecommmerce.product.controller;
 
+import com.easternpearl.ecommmerce.product.ProductService;
 import com.easternpearl.ecommmerce.product.dto.ProductForBuyerDTO;
 import com.easternpearl.ecommmerce.product.model.FilterObj;
+import com.easternpearl.ecommmerce.product.model.ProductEntity;
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
 import com.easternpearl.ecommmerce.product.repo.ProductFilterDAO;
 import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
@@ -43,7 +45,7 @@ public class ProductController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<Product> addProduct(
+    public ResponseEntity<ProductEntity> addProduct(
             @RequestParam("productName") String productName,
             @RequestParam("price") Double price,
             @RequestParam("category") int category,
@@ -56,29 +58,30 @@ public class ProductController {
         ProductState productState = (productCount > 0) ? ProductState.InStock : ProductState.OutOfStock ;
 
         try {
-            Product product = new Product(
-                    null,
-                    productName,
-                    price,
-                    category,
-                    subCategory,
-                    imageFile.getOriginalFilename(),
+            ProductEntity productEntity = new ProductEntity();
+            productEntity.setProductName(productName);
+            productEntity.setPrice(price);
+            productEntity.setCategory(category);
+            productEntity.setSubCategory(subCategory);
+            productEntity.setProductImageLink(imageFile.getOriginalFilename());
+            productEntity.setSeller();
                     sellerId,
                     0.0,
                     0,
                     productState,
                     productCount,
                     "Product still code not added",
-                    true
+                    true,
+                    null
             );
 
-            Product savedProduct = productService.save(product);
-            String productCode = String.format("P%04dS%04d", savedProduct.getId(),sellerId);
-            savedProduct.setProductCode(productCode);
-            String imageLink = saveImageFile( savedProduct.getId(),imageFile);
-            savedProduct.setProductImageLink(imageLink);
-            savedProduct = productService.save(savedProduct);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+            ProductEntity savedProductEntity = productService.save(productEntity);
+            String productCode = String.format("P%04dS%04d", savedProductEntity.getId(),sellerId);
+            savedProductEntity.setProductCode(productCode);
+            String imageLink = saveImageFile( savedProductEntity.getId(),imageFile);
+            savedProductEntity.setProductImageLink(imageLink);
+            savedProductEntity = productService.save(savedProductEntity);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedProductEntity);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -103,7 +106,7 @@ public class ProductController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        Optional<Product> product = productService.findById(id);
+        Optional<ProductEntity> product = productService.findById(id);
         if (product.isPresent()) {
             deleteImageFile(product.get().getProductImageLink());
             productService.delete(id);
@@ -114,48 +117,48 @@ public class ProductController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ProductForBuyerDTO>> getAllProductsForCustomers() {
-        List<Product> products = productService.findAllForCustomers();
-        return ResponseEntity.ok(productService.convertListForBuyers(products));
+        List<ProductEntity> productEntities = productService.findAllForCustomers();
+        return ResponseEntity.ok(productService.convertListForBuyers(productEntities));
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        Optional<Product> product = productService.findById(id);
+    public ResponseEntity<ProductEntity> getProductById(@PathVariable Long id) {
+        Optional<ProductEntity> product = productService.findById(id);
         return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/get/all/{category}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Integer category) {
-        List<Product> products = productService.findByCategory(category);
-        return ResponseEntity.ok(products);
+    public ResponseEntity<List<ProductEntity>> getProductsByCategory(@PathVariable Integer category) {
+        List<ProductEntity> productEntities = productService.findByCategory(category);
+        return ResponseEntity.ok(productEntities);
     }
 
     @GetMapping("/get/{name}")
-    public ResponseEntity<List<Product>> getProductsByName(@PathVariable String name) {
-        List<Product> products = productService.findByName(name);
-        return ResponseEntity.ok(products);
+    public ResponseEntity<List<ProductEntity>> getProductsByName(@PathVariable String name) {
+        List<ProductEntity> productEntities = productService.findByName(name);
+        return ResponseEntity.ok(productEntities);
     }
 
     @PutMapping("/edit/{id}")
-    public ResponseEntity<Product> editProduct(
+    public ResponseEntity<ProductEntity> editProduct(
             @PathVariable Long id,
             @RequestParam("productName") String productName,
             @RequestParam("price") Double price,
             @RequestParam("category") int category,
             @RequestParam("subCategory") int subCategory,
             @RequestParam("imageFile") MultipartFile imageFile) {
-        Optional<Product> existingProduct = productService.findById(id);
+        Optional<ProductEntity> existingProduct = productService.findById(id);
         if (existingProduct.isPresent()) {
             try {
                 String imageFileName = saveImageFile(id, imageFile);
-                Product updatedProduct = existingProduct.get();
-                deleteImageFile(updatedProduct.getProductImageLink());
-                updatedProduct.setProductName(productName);
-                updatedProduct.setPrice(price);
-                updatedProduct.setCategory(category);
-                updatedProduct.setProductImageLink(imageFileName);
-                productService.save(updatedProduct);
-                return ResponseEntity.ok(updatedProduct);
+                ProductEntity updatedProductEntity = existingProduct.get();
+                deleteImageFile(updatedProductEntity.getProductImageLink());
+                updatedProductEntity.setProductName(productName);
+                updatedProductEntity.setPrice(price);
+                updatedProductEntity.setCategory(category);
+                updatedProductEntity.setProductImageLink(imageFileName);
+                productService.save(updatedProductEntity);
+                return ResponseEntity.ok(updatedProductEntity);
             } catch (IOException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
@@ -184,7 +187,7 @@ public class ProductController {
     }
 
     @GetMapping("/search/{text}/{category}/{subCategory}")
-    public List<Product> getProductsOnFilterParams(
+    public List<ProductEntity> getProductsOnFilterParams(
             @PathVariable(required = false) String text,
             @PathVariable int category,
             @PathVariable int subCategory
@@ -193,7 +196,7 @@ public class ProductController {
        return productFilterDAO.findByFilterObj(text,category,subCategory);
     }
  @PostMapping("/filter")
-    public List<Product> getProductsOnFilterObj(
+    public List<ProductEntity> getProductsOnFilterObj(
          @RequestBody FilterObj filterObj
 
          ){
@@ -201,9 +204,9 @@ public class ProductController {
     }
 
     @PostMapping("/bulk")
-    public ResponseEntity<List<Product>> saveProducts(@RequestBody List<Product> products) {
-        List<Product> savedProducts = productService.saveAll(products);
-        return ResponseEntity.ok(savedProducts);
+    public ResponseEntity<List<ProductEntity>> saveProducts(@RequestBody List<ProductEntity> productEntities) {
+        List<ProductEntity> savedProductEntities = productService.saveAll(productEntities);
+        return ResponseEntity.ok(savedProductEntities);
     }
 
 

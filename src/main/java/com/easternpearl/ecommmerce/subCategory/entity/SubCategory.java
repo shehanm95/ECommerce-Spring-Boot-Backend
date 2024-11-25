@@ -1,7 +1,5 @@
-package com.easternpearl.ecommmerce.subCategory;
+package com.easternpearl.ecommmerce.subCategory.entity;
 
-import com.easternpearl.ecommmerce.category.Category;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

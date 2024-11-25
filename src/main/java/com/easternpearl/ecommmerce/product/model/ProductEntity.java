@@ -1,20 +1,20 @@
-package com.easternpearl.ecommmerce.product;
+package com.easternpearl.ecommmerce.product.model;
 
+import com.easternpearl.ecommmerce.orders.Entity.SellerOrderDetail;
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
-import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
+import com.easternpearl.ecommmerce.user.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.security.PrivateKey;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "products")
 @AllArgsConstructor
-public class Product {
+public class ProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,8 +35,8 @@ public class Product {
     @Column(name = "product_image_link", nullable = false)
     private String productImageLink; // Product image URL
 
-    @Column(nullable = false)
-    private Integer sellerId;
+    @ManyToMany
+    private UserEntity seller;
 
     private Double rate;
 
@@ -51,5 +51,9 @@ public class Product {
     private String productCode;
 
     private Boolean isNew;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "product")
+    private SellerOrderDetail sellerOrderDetail;
 
 }

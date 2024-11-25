@@ -1,8 +1,8 @@
-package com.easternpearl.ecommmerce.subCategory;
+package com.easternpearl.ecommmerce.subCategory.entity;
 
-import com.easternpearl.ecommmerce.category.Category;
-import com.easternpearl.ecommmerce.category.CategoryRepository;
+import com.easternpearl.ecommmerce.category.repo.CategoryRepository;
 import com.easternpearl.ecommmerce.subCategory.DAO.SubCategoryRequest;
+import com.easternpearl.ecommmerce.subCategory.service.SubCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

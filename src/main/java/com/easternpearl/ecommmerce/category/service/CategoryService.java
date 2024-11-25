@@ -1,4 +1,6 @@
-package com.easternpearl.ecommmerce.category;
+package com.easternpearl.ecommmerce.category.service;
+
+import com.easternpearl.ecommmerce.category.entity.Category;
 
 import java.util.List;
 import java.util.Optional;

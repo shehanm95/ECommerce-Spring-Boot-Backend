@@ -1,6 +1,7 @@
-package com.easternpearl.ecommmerce.subCategory;
+package com.easternpearl.ecommmerce.subCategory.service;
 
 import com.easternpearl.ecommmerce.subCategory.DAO.SubCategoryRequest;
+import com.easternpearl.ecommmerce.subCategory.entity.SubCategory;
 
 import java.util.List;
 

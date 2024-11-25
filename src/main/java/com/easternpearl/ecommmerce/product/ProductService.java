@@ -2,6 +2,8 @@ package com.easternpearl.ecommmerce.product;
 
 
 import com.easternpearl.ecommmerce.product.dto.ProductForBuyerDTO;
+import com.easternpearl.ecommmerce.product.model.ProductEntity;
+import com.easternpearl.ecommmerce.product.repo.ProductRepository;
 import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
 import com.easternpearl.ecommmerce.user.rpo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,41 +24,41 @@ public class ProductService {
 
 
 
-    public Product save(Product product) {
-        return productRepository.save(product);
+    public ProductEntity save(ProductEntity productEntity) {
+        return productRepository.save(productEntity);
     }
 
     public void delete(Long id) {
         productRepository.deleteById(id);
     }
 
-    public Optional<Product> findById(Long id) {
+    public Optional<ProductEntity> findById(Long id) {
         return productRepository.findById(id);
     }
 
-    public List<Product> findAllForCustomers() {
+    public List<ProductEntity> findAllForCustomers() {
         return productRepository.findAll();
     }
 
-    public List<Product> findByCategory(Integer category) {
+    public List<ProductEntity> findByCategory(Integer category) {
         return productRepository.findByCategory(category);
     }
 
-    public List<Product> findByName(String name) {
+    public List<ProductEntity> findByName(String name) {
         return productRepository.findByProductNameContainingIgnoreCase(name);
     }
 
 
-    public List<Product> saveAll(List<Product> products) {
-        return productRepository.saveAll(products);
+    public List<ProductEntity> saveAll(List<ProductEntity> productEntities) {
+        return productRepository.saveAll(productEntities);
     }
 
     public List<ProductForBuyerDTO> getProductsForBuyers(){
         return  convertListForBuyers(productRepository.getNewProducts());
     }
 
-    public List<ProductForBuyerDTO> convertListForBuyers(List<Product> products){
-        List<ProductForBuyerDTO> buyerProductsList = products.stream()
+    public List<ProductForBuyerDTO> convertListForBuyers(List<ProductEntity> productEntities){
+        List<ProductForBuyerDTO> buyerProductsList = productEntities.stream()
                 .map(p -> mapper.convertValue(p, ProductForBuyerDTO.class))
                 .toList();
 
