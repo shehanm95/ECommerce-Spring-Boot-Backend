@@ -71,8 +71,8 @@ public class ProductService {
     }
 
     public ProductForBuyerDTO addSellerDetailToProductForBuyerDto(ProductForBuyerDTO product) {
-        if(userRepository.existsById(product.getSellerId())){
-            UserNameAndImg sellerDetails = getSellerNameAndImage(product.getSellerId());
+        if(userRepository.existsById(product.getSeller().getId())){
+            UserNameAndImg sellerDetails = getSellerNameAndImage(product.getSeller().getId());
             product.setSellerDetails(sellerDetails);
         }
         return product;

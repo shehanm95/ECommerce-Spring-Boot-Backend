@@ -1,6 +1,7 @@
 package com.easternpearl.ecommmerce.orders.Entity;
 
 import com.easternpearl.ecommmerce.orders.Entity.enums.OrderStatus;
+import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,10 +23,15 @@ public class SellerOrder {
     private Long sellerOrderId;
 
 
-    private Integer sellerId;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "seller_id")
+    private UserEntity seller;
 
-
-    private Integer buyerId;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "buyer_id")
+    private UserEntity buyer;
     private Double orderAmount;
     private Integer totalProducts;
 

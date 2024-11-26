@@ -33,6 +33,7 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
+//    http://localhost:8080/swagger-ui/index.html#/
     private final Path imagePath = Paths.get("src/main/resources/images/user");
 
     private final UserService userService;

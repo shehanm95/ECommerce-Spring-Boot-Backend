@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -35,7 +37,9 @@ public class ProductEntity {
     @Column(name = "product_image_link", nullable = false)
     private String productImageLink; // Product image URL
 
-    @ManyToMany
+    @ManyToOne
+    //@JsonIgnore
+    @JoinColumn(name = "seller_id")
     private UserEntity seller;
 
     private Double rate;
@@ -43,7 +47,6 @@ public class ProductEntity {
     private Integer rateCount;
 
     @Enumerated(EnumType.STRING)
-
     private ProductState productState;
 
     private Integer productCount;
@@ -53,7 +56,7 @@ public class ProductEntity {
     private Boolean isNew;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "product")
-    private SellerOrderDetail sellerOrderDetail;
+    @ManyToMany(mappedBy = "productEntity")
+    private List<SellerOrderDetail> sellerOrderDetail;
 
 }

@@ -2,6 +2,7 @@ package com.easternpearl.ecommmerce.product.dto;
 
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
 import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
+import com.easternpearl.ecommmerce.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ public class ProductForBuyerDTO {
     private Integer category;
     private Integer subCategory;
     private String productImageLink;
-    private Integer sellerId;
+    private UserEntity seller;
     private Double rate;
     private Integer rateCount;
     private ProductState productState;

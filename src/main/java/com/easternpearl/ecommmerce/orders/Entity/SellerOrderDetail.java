@@ -15,17 +15,16 @@ import lombok.NoArgsConstructor;
 public class SellerOrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "seller_order_detail_id")
     private Long sellerOrderDetailId;
+
     @ManyToOne
-    @JoinColumn(name = "seller_order_id", nullable = false)
     @JsonIgnore
+    @JoinColumn(name = "seller_order_id")
     private SellerOrder sellerOrder;
-    @ManyToMany
-    @JoinTable(
-            name = "product_seller_order_detail",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "seller_order_detail_id")
-    )
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
     private ProductEntity productEntity;
     private Integer quantity;
 }

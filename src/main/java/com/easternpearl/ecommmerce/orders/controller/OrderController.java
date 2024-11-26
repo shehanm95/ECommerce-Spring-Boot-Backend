@@ -8,6 +8,9 @@ import com.easternpearl.ecommmerce.orders.dto.OrderResponseDto;
 import com.easternpearl.ecommmerce.orders.dto.SellerOrderResponseDto;
 import com.easternpearl.ecommmerce.orders.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,14 +21,17 @@ import java.util.List;
 @RequestMapping("/orders")
 @CrossOrigin("*")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
 
     private final OrderService orderService;
-
+    private final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkoutOrder(@RequestBody OrderRequestDto orderRequest) {
-        System.out.println("order reciverd ========" + orderRequest);
+    public ResponseEntity<?> checkoutOrder(@RequestBody OrderRequestDto orderRequest
+    ) {
+
+        logger.info("order reciverd ========" + orderRequest);
         try {
             OrderResponseDto response = orderService.processOrder(orderRequest);
             return ResponseEntity.ok(response);

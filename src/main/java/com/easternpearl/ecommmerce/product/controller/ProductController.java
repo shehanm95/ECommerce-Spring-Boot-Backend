@@ -7,7 +7,12 @@ import com.easternpearl.ecommmerce.product.model.ProductEntity;
 import com.easternpearl.ecommmerce.product.model.enums.ProductState;
 import com.easternpearl.ecommmerce.product.repo.ProductFilterDAO;
 import com.easternpearl.ecommmerce.user.DTO.UserNameAndImg;
+import com.easternpearl.ecommmerce.user.entity.UserEntity;
+import com.easternpearl.ecommmerce.user.rpo.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +34,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
 
     private static final String PRODUCT_IMAGES_DIR = "src/main/resources/products";
@@ -34,6 +42,8 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductFilterDAO productFilterDAO;
+    private final UserRepository userRepository;
+    private final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
 
     private void createFolder(){
@@ -42,7 +52,6 @@ public class ProductController {
             directory.mkdirs();
         }
     }
-
 
     @PostMapping("/add")
     public ResponseEntity<ProductEntity> addProduct(
@@ -54,38 +63,68 @@ public class ProductController {
             @RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam("productCount") Integer productCount)
     {
+        // Ensure the folder is created before the image is saved
         createFolder();
-        ProductState productState = (productCount > 0) ? ProductState.InStock : ProductState.OutOfStock ;
+
+        // Determine the product state based on stock count
+        ProductState productState = (productCount > 0) ? ProductState.InStock : ProductState.OutOfStock;
 
         try {
+            // Create the product entity and set its properties
             ProductEntity productEntity = new ProductEntity();
             productEntity.setProductName(productName);
             productEntity.setPrice(price);
             productEntity.setCategory(category);
             productEntity.setSubCategory(subCategory);
-            productEntity.setProductImageLink(imageFile.getOriginalFilename());
-            productEntity.setSeller();
-                    sellerId,
-                    0.0,
-                    0,
-                    productState,
-                    productCount,
-                    "Product still code not added",
-                    true,
-                    null
-            );
+            productEntity.setProductImageLink(imageFile.getOriginalFilename()); // Set the image file name temporarily
 
+            // Handle the seller lookup and set the seller
+            Optional<UserEntity> seller = userRepository.findById(sellerId);
+            if (seller.isPresent()) {
+                productEntity.setSeller(seller.get());
+            } else {
+                // Seller not found - return a 404 response
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(null); // Alternatively, you could return a meaningful message
+            }
+
+            // Set other product properties
+            productEntity.setProductState(productState);
+            productEntity.setProductCount(productCount);
+            productEntity.setProductCode("still not added");
+            productEntity.setIsNew(true); // Assuming new products are always marked true on creation
+            productEntity.setRate(0.0); // Default rating
+            productEntity.setRateCount(0); // Default rating count
+            productEntity.setProductImageLink(imageFile.getOriginalFilename());
+            productEntity.setId(0L);
+            productEntity.setSellerOrderDetail(Collections.emptyList());
+            // Log the details for debugging purposes
+            //logger.info("Creating product: {}", productEntity);
+
+            // Save the product entity to the database
             ProductEntity savedProductEntity = productService.save(productEntity);
-            String productCode = String.format("P%04dS%04d", savedProductEntity.getId(),sellerId);
+            System.out.println("saved sucesssfully!!!!!!!!!!!!!!!!!");
+            // Generate the product code after saving the entity
+            String productCode = String.format("P%04dS%04d", savedProductEntity.getId(), sellerId);
             savedProductEntity.setProductCode(productCode);
-            String imageLink = saveImageFile( savedProductEntity.getId(),imageFile);
+
+            // Save the image file and get the link
+            String imageLink = saveImageFile(savedProductEntity.getId(), imageFile);
             savedProductEntity.setProductImageLink(imageLink);
+
+            // Save the updated product entity with the generated product code and image link
             savedProductEntity = productService.save(savedProductEntity);
+
+            // Return the response with status CREATED
             return ResponseEntity.status(HttpStatus.CREATED).body(savedProductEntity);
+
         } catch (IOException e) {
+            // Log the exception and return a server error response
+            logger.error("Error while saving product: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {

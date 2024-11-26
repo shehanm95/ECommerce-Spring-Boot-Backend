@@ -14,10 +14,16 @@ import com.easternpearl.ecommmerce.product.model.ProductEntity;
 import com.easternpearl.ecommmerce.product.repo.ProductRepository;
 import com.easternpearl.ecommmerce.user.DTO.UserDTO;
 import com.easternpearl.ecommmerce.user.entity.UserEntity;
+import com.easternpearl.ecommmerce.user.rpo.UserRepository;
 import com.easternpearl.ecommmerce.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,7 +32,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
+
 
     private final UserService userService;
     private final ProductService productService;
@@ -36,15 +44,22 @@ public class OrderService {
     private final SellerOrderDetailRepository sellerOrderDetailRepository;
     private final ObjectMapper mapper;
     private final ProductRepository productRepository;
+    private final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
+    @Autowired
+    UserRepository userRepository;
 
 
     @Transactional
     public OrderResponseDto processOrder(OrderRequestDto orderRequest) {
-        System.out.println("$$$===================== Order Processing ======================$$$");
+        logger.info("$$$===================== Order Processing ======================$$$");
+        userRepository.findById(orderRequest.getBuyerId()).ifPresent(
+                orderRequest::setBuyer
+        );
         List<SellerOrder> sellerOrders = new ArrayList<SellerOrder>();
 
         // Step 1: Validate Buyer
-        UserDTO buyer = userService.findById(orderRequest.getBuyerId())
+        UserDTO buyer = userService.findById(orderRequest.getBuyer().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Buyer ID to process order========"));
 
         // Step 2: Initialize the Order
@@ -75,33 +90,34 @@ public class OrderService {
             // Create and add OrderDetail
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(order);
-            orderDetail.setSellerId(productEntity.getSellerId());
+            orderDetail.setSellerId(productEntity.getSeller().getId());
             orderDetail.setProductEntity(productEntity);
             orderDetail.setQuantity(productOrder.getQuantity());
             orderDetail.setPrice(productEntity.getPrice());
             orderDetails.add(orderDetail);
-            System.out.println("************************ STARTED SETTING SELLER ORDER ************");
+            logger.info("************************ STARTED SETTING SELLER ORDER ************");
+
             // setting seller order
             boolean addedInLoop = false;
             for (int i = 0; i < sellerOrders.size(); i++) {
                 SellerOrder sellerOrder = sellerOrders.get(i);
-                if (sellerOrder.getSellerId().equals(productEntity.getSellerId())) {
+                if (sellerOrder.getSeller().getId().equals(productEntity.getSeller().getId())) {
                     SellerOrderDetail sellerOrderDetail = new SellerOrderDetail(
                             0L,
                             sellerOrder,
-                            productEntity.getId(),
+                            productEntity,
                             productOrder.getQuantity()
                     );
                     sellerOrder.getSellerOrderDetails().add(sellerOrderDetail);
                     addedInLoop = true;
-                    System.out.println("detail added inside the loop =======>>>>>");
+                    logger.info("detail added inside the loop =======>>>>>");
                 }
             }
             if(!addedInLoop){
 
                     SellerOrder newSellerOrder = new SellerOrder();
-                    newSellerOrder.setSellerId(productEntity.getSellerId());
-                    newSellerOrder.setBuyerId(orderRequest.getBuyerId());
+                    newSellerOrder.setSeller(productEntity.getSeller());
+                    newSellerOrder.setBuyer(orderRequest.getBuyer());
                     newSellerOrder.setReceivedDate(LocalDateTime.now());
                     newSellerOrder.setOrderStatus( OrderStatus.Pending);
                 newSellerOrder.setOrderAmount(productEntity.getPrice() * productOrder.getQuantity());
@@ -111,16 +127,16 @@ public class OrderService {
                     SellerOrderDetail sellerOrderDetail = new SellerOrderDetail(
                             0L,
                             newSellerOrder,
-                            productEntity.getId(),
+                            productEntity,
                             productOrder.getQuantity()
                     );
                     newSellerOrder.getSellerOrderDetails().add(sellerOrderDetail);
                     sellerOrders.add(newSellerOrder);
-                    System.out.println("detail added outside the loop =======>>>>>");
+                logger.info("detail added outside the loop =======>>>>>");
 
             }
 
-            System.out.println("************************ FiniSHED SETTING SELLER ORDER ************");
+            logger.info("************************ FiniSHED SETTING SELLER ORDER ************");
             // Calculate total amount
             totalAmount += productEntity.getPrice() * productOrder.getQuantity();
         }
@@ -130,7 +146,7 @@ public class OrderService {
         order.setOrderDetails(orderDetails);
         Orders savedOrder = ordersRepository.save(order); // saving order;
         orderDetailRepository.saveAll(orderDetails);
-            System.out.println("$$$===================== buyer order saved ======================$$$");
+        logger.info("$$$===================== buyer order saved ======================$$$");
 
         //Step 5:save seller orders
 
@@ -142,9 +158,7 @@ public class OrderService {
 
             for (SellerOrderDetail detail : sellerOrder.getSellerOrderDetails()) {
                 productCount += detail.getQuantity();
-                ProductEntity productEntity = productService.findById(detail.getProductId())
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid Product ID"));
-                orderAmount += detail.getQuantity() * productEntity.getPrice();
+                orderAmount += detail.getQuantity() * detail.getProductEntity().getPrice();
             }
 
             sellerOrder.setOrderAmount(orderAmount);
@@ -154,16 +168,16 @@ public class OrderService {
             SellerOrder savedSellerOrder = new SellerOrder();
             try {
                 savedSellerOrder = sellerOrderRepository.save(sellerOrder);
-                System.out.println("seller order saved correctly ==============|||");
+                logger.info("seller order saved correctly ==============|||");
             } catch (Exception e) {
-                System.err.println("Error saving SellerOrder: " + e.getMessage());
+                logger.error("Error saving SellerOrder: {}", e.getMessage());
 
             }
             try {
                 sellerOrderDetailRepository.saveAll(sellerOrder.getSellerOrderDetails());
 
             }catch (Exception e){
-                System.out.println("=XXXXXXXXXXXXXXX Error in saving details : "+ e.getMessage());
+                logger.error("=XXXXXXXXXXXXXXX Error in saving details : {}", e.getMessage());
             }
        }
 
@@ -197,13 +211,13 @@ public class OrderService {
                         .convertValue(order,SellerOrderResponseDto.class);
                 sellerOrder.setBuyerOrderId(order.getBuyerOrder().getId());
                 sellerOrder.setUserNameAndImg(productService
-                        .getSellerNameAndImage(order.getSellerId()));
+                        .getSellerNameAndImage(order.getSeller().getId()));
 
                 for(SellerOrderDetail detail : order.getSellerOrderDetails()){
                     SellerOrderDetailResponseDto resDetail = mapper
                             .convertValue(detail,SellerOrderDetailResponseDto.class);
 
-                    resDetail.setProduct(mapper.convertValue(productRepository.findById(detail.getProductId()),ProductForBuyerDTO.class));
+                    resDetail.setProduct(mapper.convertValue(detail.getProductEntity(),ProductForBuyerDTO.class));
 
                     sellerOrder.getSellerOrderDetailsDto().add(resDetail);
 

@@ -11,6 +11,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     List<ProductEntity> findByCategory(Integer category);
     List<ProductEntity> findByProductNameContainingIgnoreCase(String productName);
 
-    @Query("SELECT p FROM Product p WHERE p.isNew = true")
+    @Query("SELECT p FROM ProductEntity p WHERE p.isNew = true")
     List<ProductEntity> getNewProducts();
 }

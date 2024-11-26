@@ -1,13 +1,16 @@
 package com.easternpearl.ecommmerce.user.entity;
 
+import com.easternpearl.ecommmerce.product.model.ProductEntity;
 import com.easternpearl.ecommmerce.user.entity.enums.UserRole;
 import com.easternpearl.ecommmerce.user.entity.enums.UserState;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -37,5 +40,9 @@ public class UserEntity {
     private LocalDate createdDate = LocalDate.now();
     private LocalDate modifiedDate;
     private String imageLink;
+
+    @ManyToMany(mappedBy = "seller")
+    @JsonIgnore
+    private List<ProductEntity> products;
 }
 
