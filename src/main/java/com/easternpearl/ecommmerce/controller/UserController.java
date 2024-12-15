@@ -6,6 +6,7 @@ import com.easternpearl.ecommmerce.dto.AdminStaticsDto;
 import com.easternpearl.ecommmerce.dto.BuyerStaticsDto;
 import com.easternpearl.ecommmerce.dto.SellerStaticsDto;
 import com.easternpearl.ecommmerce.dto.UserDTO;
+import com.easternpearl.ecommmerce.entity.UserEntity;
 import com.easternpearl.ecommmerce.enums.UserRole;
 import com.easternpearl.ecommmerce.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -194,6 +195,11 @@ public class UserController {
     @GetMapping("/buyerStatics/{buyerId}")
     public BuyerStaticsDto getBuyerStatics(@PathVariable Long buyerId){
         return userService.getBuyerStatics(buyerId);
+    }
+
+    @PostMapping("/bulk")
+    public List<UserEntity> saveUserBulk(@RequestBody List<UserEntity> users){
+        return userService.saveAll(users);
     }
 }
 

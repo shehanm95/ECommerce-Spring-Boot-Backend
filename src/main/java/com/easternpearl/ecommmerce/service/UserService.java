@@ -6,6 +6,7 @@ import com.easternpearl.ecommmerce.dto.AdminStaticsDto;
 import com.easternpearl.ecommmerce.dto.BuyerStaticsDto;
 import com.easternpearl.ecommmerce.dto.SellerStaticsDto;
 import com.easternpearl.ecommmerce.dto.UserDTO;
+import com.easternpearl.ecommmerce.entity.UserEntity;
 import com.easternpearl.ecommmerce.enums.UserRole;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,4 +29,6 @@ public interface UserService {
     BuyerStaticsDto getBuyerStatics(Long buyerId);
 
     boolean checkExistByUsername(String username);
+
+    List<UserEntity> saveAll(List<UserEntity> users);
 }

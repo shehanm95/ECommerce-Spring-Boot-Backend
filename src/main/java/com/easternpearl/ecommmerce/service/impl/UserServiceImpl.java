@@ -224,6 +224,11 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    @Override
+    public List<UserEntity> saveAll(List<UserEntity> users) {
+        return userRepository.saveAll(users);
+    }
+
 
     private String encryptPassword(String password) {
         try {

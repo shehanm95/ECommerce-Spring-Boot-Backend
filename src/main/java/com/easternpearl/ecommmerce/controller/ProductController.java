@@ -205,7 +205,6 @@ public class ProductController {
     }
 
     // Helper Methods
-
     private String saveImageFile(Long imageId , MultipartFile imageFile) throws IOException {
         System.out.println(imageFile.getOriginalFilename()+"oringal name");
         String[] nameParts = imageFile.getOriginalFilename().split("\\.");
@@ -234,11 +233,13 @@ public class ProductController {
        return productFilterDAO.findByFilterObj(text,category,subCategory);
     }
  @PostMapping("/filter")
-    public List<ProductEntity> getProductsOnFilterObj(
+    public List<ProductForBuyerDTO> getProductsOnFilterObj(
          @RequestBody FilterObj filterObj
 
          ){
-       return productFilterDAO.findByFilterObj(filterObj.getText(),filterObj.getCategory(),filterObj.getSubCategory());
+        List<ProductEntity> productEntities =  productFilterDAO.findByFilterObj(filterObj.getText(),filterObj.getCategory(),filterObj.getSubCategory());
+       return productService.convertListForBuyers(productEntities);
+
     }
 
     @PostMapping("/bulk")
