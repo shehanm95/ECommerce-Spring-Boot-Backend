@@ -6,12 +6,13 @@ import com.easternpearl.ecommmerce.entity.Orders;
 import com.easternpearl.ecommmerce.entity.SellerOrder;
 import com.easternpearl.ecommmerce.entity.SellerOrderDetail;
 import com.easternpearl.ecommmerce.enums.OrderStatus;
+import com.easternpearl.ecommmerce.mappers.UserMapper;
 import com.easternpearl.ecommmerce.repo.SellerOrderDetailRepository;
 import com.easternpearl.ecommmerce.repo.SellerOrderRepository;
 import com.easternpearl.ecommmerce.repo.OrderDetailRepository;
 import com.easternpearl.ecommmerce.repo.OrdersRepository;
 import com.easternpearl.ecommmerce.service.ProductService;
-import com.easternpearl.ecommmerce.dto.ProductForBuyerDTO;
+import com.easternpearl.ecommmerce.dto.ProductDTO;
 import com.easternpearl.ecommmerce.entity.ProductEntity;
 import com.easternpearl.ecommmerce.repo.ProductRepository;
 import com.easternpearl.ecommmerce.dto.UserDTO;
@@ -46,6 +47,7 @@ public class OrderService {
     private final ObjectMapper mapper;
     private final ProductRepository productRepository;
     private final Logger logger = LoggerFactory.getLogger(OrderService.class);
+    private final UserMapper userMapper;
 
     @Autowired
     UserRepository userRepository;
@@ -185,7 +187,7 @@ public class OrderService {
         // Step 6: Map to Response DTO
         List<OrderDetailResponseDto> orderDetailResponseDtos = orderDetails.stream()
                 .map(detail -> {
-                    ProductForBuyerDTO productDto = mapper.convertValue(detail.getProductEntity(), ProductForBuyerDTO.class);
+                    ProductDTO productDto = mapper.convertValue(detail.getProductEntity(), ProductDTO.class);
                     OrderDetailResponseDto responseDto = new OrderDetailResponseDto();
                     responseDto.setProduct(productDto);
                     responseDto.setQuantity(detail.getQuantity());
@@ -211,14 +213,16 @@ public class OrderService {
                 SellerOrderResponseDto sellerOrder = mapper
                         .convertValue(order,SellerOrderResponseDto.class);
                 sellerOrder.setBuyerOrderId(order.getBuyerOrder().getId());
-                sellerOrder.setUserNameAndImg(productService
-                        .getSellerNameAndImage(order.getSeller().getId()));
+
+                sellerOrder.setSeller(userMapper.toDto(order.getSeller()));
+                sellerOrder.setBuyer(userMapper.toDto(order.getBuyer()));
+
 
                 for(SellerOrderDetail detail : order.getSellerOrderDetails()){
                     SellerOrderDetailResponseDto resDetail = mapper
                             .convertValue(detail,SellerOrderDetailResponseDto.class);
 
-                    resDetail.setProduct(mapper.convertValue(detail.getProductEntity(),ProductForBuyerDTO.class));
+                    resDetail.setProduct(mapper.convertValue(detail.getProductEntity(), ProductDTO.class));
 
                     sellerOrder.getSellerOrderDetailsDto().add(resDetail);
 
@@ -242,10 +246,9 @@ public class OrderService {
             List<OrderDetailResponseDto> orderDetailDtos = order.getOrderDetails().stream()
                     .map(detail -> {
                         OrderDetailResponseDto detailDto = new OrderDetailResponseDto();
-                        detailDto.setSellerId(detail.getSellerId());
-                        detailDto.setProduct(mapper.convertValue(detail.getProductEntity(), ProductForBuyerDTO.class));
+                        detailDto.setSeller(userMapper.toDto(detail.getProductEntity().getSeller()));
+                        detailDto.setProduct(mapper.convertValue(detail.getProductEntity(), ProductDTO.class));
                         detailDto.setQuantity(detail.getQuantity());
-                        detailDto.getProduct().setSellerDetails(productService.getSellerNameAndImage(detail.getSellerId()));
                         System.out.println(detailDto);
                         return detailDto;
                     })

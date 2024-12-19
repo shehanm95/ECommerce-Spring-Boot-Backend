@@ -42,14 +42,12 @@ public class OrderController {
 
     @GetMapping("/buyer/{userId}")
     public List<OrderResponseDto> getOrdersByBuyer(@PathVariable Long userId) {
-        System.out.println("Fetching orders for buyer ID: " + userId);
         return orderService.getOrdersByBuyerId(userId);
     }
 
 
     @GetMapping("/seller/{sellerId}")
     public List<SellerOrderResponseDto> getSellerOrdersOnSellerId(@PathVariable Long sellerId){
-        System.out.println("getSellerOrdersOnSellerId ======== : "+ sellerId);
         return orderService.getSellerOrdersOnSellerId(sellerId);
     }
 

@@ -7,15 +7,16 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
+@Data
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +41,9 @@ public class UserEntity {
     private LocalDate modifiedDate;
     private String imageLink;
 
-    @ManyToMany(mappedBy = "seller")
+    @ManyToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
     private List<ProductEntity> products;
 }
 

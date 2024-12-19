@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -36,7 +37,6 @@ public class ProductEntity {
     private String productImageLink; // Product image URL
 
     @ManyToOne
-    //@JsonIgnore
     @JoinColumn(name = "seller_id")
     private UserEntity seller;
 
@@ -54,7 +54,7 @@ public class ProductEntity {
     private Boolean isNew;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "productEntity" , cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "productEntity" , cascade = CascadeType.REMOVE )
     private List<SellerOrderDetail> sellerOrderDetail;
 
 }

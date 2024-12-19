@@ -1,10 +1,9 @@
 package com.easternpearl.ecommmerce.service;
 
 
-import com.easternpearl.ecommmerce.dto.ProductForBuyerDTO;
+import com.easternpearl.ecommmerce.dto.ProductDTO;
 import com.easternpearl.ecommmerce.entity.ProductEntity;
 import com.easternpearl.ecommmerce.repo.ProductRepository;
-import com.easternpearl.ecommmerce.dto.UserNameAndImg;
 import com.easternpearl.ecommmerce.repo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -53,43 +52,8 @@ public class ProductService {
         return productRepository.saveAll(productEntities);
     }
 
-    public List<ProductForBuyerDTO> getProductsForBuyers(){
-        return  convertListForBuyers(productRepository.getNewProducts());
-    }
-
-    public List<ProductForBuyerDTO> convertListForBuyers(List<ProductEntity> productEntities){
-        List<ProductForBuyerDTO> buyerProductsList = productEntities.stream()
-                .map(p -> mapper.convertValue(p, ProductForBuyerDTO.class))
-                .toList();
-
-        for (int i = 0; i < buyerProductsList.size(); i++) {
-            addSellerDetailToProductForBuyerDto(buyerProductsList.get(i));
-        }
-
-
-        return buyerProductsList;
-    }
-
-    public ProductForBuyerDTO addSellerDetailToProductForBuyerDto(ProductForBuyerDTO product) {
-        if(userRepository.existsById(product.getSeller().getId())){
-            UserNameAndImg sellerDetails = getSellerNameAndImage(product.getSeller().getId());
-            product.setSellerDetails(sellerDetails);
-        }
-        return product;
-    }
-
-    public UserNameAndImg getSellerNameAndImage(Long sellerId) {
-        if(userRepository.existsById(sellerId)){
-            UserNameAndImg sellerDetails = userRepository.getSellerNameAndImgLink(sellerId);
-            sellerDetails.setImageLink( MAIN_LINK+ sellerDetails.getImageLink());
-            return sellerDetails;
-        }
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@ Seller Not Found @@@@@@@@@@@@@@@@@");
-        return null;
-    }
-
-    public ProductForBuyerDTO getProductById(Long productId) {
-        return mapper.convertValue(productRepository.findById(productId),ProductForBuyerDTO.class);
+    public ProductDTO getProductById(Long productId) {
+        return mapper.convertValue(productRepository.findById(productId), ProductDTO.class);
     }
 }
 

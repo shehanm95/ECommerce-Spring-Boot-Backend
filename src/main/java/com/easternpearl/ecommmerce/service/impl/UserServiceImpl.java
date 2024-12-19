@@ -8,7 +8,7 @@ import com.easternpearl.ecommmerce.repo.SellerOrderDetailRepository;
 import com.easternpearl.ecommmerce.repo.SellerOrderRepository;
 
 import com.easternpearl.ecommmerce.service.ProductService;
-import com.easternpearl.ecommmerce.dto.ProductForBuyerDTO;
+import com.easternpearl.ecommmerce.dto.ProductDTO;
 import com.easternpearl.ecommmerce.repo.ProductRepository;
 import com.easternpearl.ecommmerce.dto.LoginDto;
 import com.easternpearl.ecommmerce.dto.RegisterDto;
@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
         List<SellerOrderDetailResponseDto> details = sellerOrderDetailRepository.findAll().stream()
                 .map(detail ->{
                             SellerOrderDetailResponseDto dto = mapper.convertValue(detail,SellerOrderDetailResponseDto.class);
-                            dto.setProduct(mapper.convertValue(detail.getProductEntity(), ProductForBuyerDTO.class));
+                            dto.setProduct(mapper.convertValue(detail.getProductEntity(), ProductDTO.class));
                 return dto;
                 }
                 )

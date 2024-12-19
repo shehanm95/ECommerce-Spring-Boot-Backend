@@ -91,7 +91,6 @@ public class UserController {
     @GetMapping("/isUserExist/{username}")
     public boolean checkExistByUsername(@PathVariable String username){
         boolean exist =  userService.checkExistByUsername(username);
-        System.out.println(exist +" ===============================exist");
         return exist;
     }
 
@@ -107,7 +106,6 @@ public class UserController {
             @RequestParam("image") MultipartFile image) {
 
 
-        System.out.println(adminPassword +"==========admin===============");
         if(!adminPassword.equals("Ecom123")){
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);}
         System.out.println(adminPassword);
@@ -123,7 +121,6 @@ public class UserController {
 
         System.out.println(new UserDTO());
         UserDTO user = userService.register(registerDto, image);
-        System.out.println("saved user : "+user);
 
         if(user != null){
             return ResponseEntity.ok(user);
@@ -167,7 +164,6 @@ public class UserController {
                     .contentType(mediaType)  // Set the correct media type based on file extension
                     .body(file);
         } else {
-            System.out.println("File not found===============: " + imageName);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }

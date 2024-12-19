@@ -1,12 +1,13 @@
 package com.easternpearl.ecommmerce.controller;
 
+import com.easternpearl.ecommmerce.mappers.ProductMapper;
+import com.easternpearl.ecommmerce.mappers.UserMapper;
 import com.easternpearl.ecommmerce.service.ProductService;
-import com.easternpearl.ecommmerce.dto.ProductForBuyerDTO;
+import com.easternpearl.ecommmerce.dto.ProductDTO;
 import com.easternpearl.ecommmerce.entity.FilterObj;
 import com.easternpearl.ecommmerce.entity.ProductEntity;
 import com.easternpearl.ecommmerce.enums.ProductState;
 import com.easternpearl.ecommmerce.repo.ProductFilterDAO;
-import com.easternpearl.ecommmerce.dto.UserNameAndImg;
 import com.easternpearl.ecommmerce.entity.UserEntity;
 import com.easternpearl.ecommmerce.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,8 @@ public class ProductController {
     private final ProductFilterDAO productFilterDAO;
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(ProductController.class);
+    private final UserMapper userMapper;
+    private final ProductMapper productMapper;
 
 
     private void createFolder(){
@@ -102,7 +105,6 @@ public class ProductController {
 
             // Save the product entity to the database
             ProductEntity savedProductEntity = productService.save(productEntity);
-            System.out.println("saved sucesssfully!!!!!!!!!!!!!!!!!");
             // Generate the product code after saving the entity
             String productCode = String.format("P%04dS%04d", savedProductEntity.getId(), sellerId);
             savedProductEntity.setProductCode(productCode);
@@ -154,9 +156,8 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ProductForBuyerDTO>> getAllProductsForCustomers() {
-        List<ProductEntity> productEntities = productService.findAllForCustomers();
-        return ResponseEntity.ok(productService.convertListForBuyers(productEntities));
+    public List<ProductDTO> getAllProductsForCustomers() {
+        return productService.findAllForCustomers().stream().map(productMapper::toDto).toList();
     }
 
     @GetMapping("/get/{id}")
@@ -223,22 +224,20 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/search/{text}/{category}/{subCategory}")
-    public List<ProductEntity> getProductsOnFilterParams(
-            @PathVariable(required = false) String text,
-            @PathVariable int category,
-            @PathVariable int subCategory
-
-    ){
-       return productFilterDAO.findByFilterObj(text,category,subCategory);
-    }
+//    @GetMapping("/search/{text}/{category}/{subCategory}")
+//    public List<ProductEntity> getProductsOnFilterParams(
+//            @PathVariable(required = false) String text,
+//            @PathVariable int category,
+//            @PathVariable int subCategory
+//
+//    ){
+//       return productFilterDAO.findByFilterObj(text,category,subCategory);
+//    }
  @PostMapping("/filter")
-    public List<ProductForBuyerDTO> getProductsOnFilterObj(
-         @RequestBody FilterObj filterObj
-
-         ){
+    public List<ProductDTO> getProductsOnFilterObj(
+         @RequestBody FilterObj filterObj){
         List<ProductEntity> productEntities =  productFilterDAO.findByFilterObj(filterObj.getText(),filterObj.getCategory(),filterObj.getSubCategory());
-       return productService.convertListForBuyers(productEntities);
+       return productEntities.stream().map(productMapper::toDto).toList();
 
     }
 
@@ -250,13 +249,8 @@ public class ProductController {
 
 
     @GetMapping("/forBuyer/all")
-    public ResponseEntity<List<ProductForBuyerDTO>> getProductsForBuyers(){
-        return ResponseEntity.ok(productService.getProductsForBuyers());
-    }
-
-    @GetMapping("/sellerDetails/{sellerId}")
-    public UserNameAndImg getSellerDetails(@PathVariable Long sellerId){
-        return productService.getSellerNameAndImage(sellerId);
+    public List<ProductDTO> getProductsForBuyers(){
+        return productService.findAllForCustomers().stream().map(productMapper::toDto).toList();
     }
 
 

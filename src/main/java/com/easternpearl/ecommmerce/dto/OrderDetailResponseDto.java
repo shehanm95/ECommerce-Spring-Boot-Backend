@@ -4,8 +4,7 @@ import lombok.Data;
 
 @Data
 public class OrderDetailResponseDto {
-    private ProductForBuyerDTO product;
+    private ProductDTO product;
     private Integer quantity;
-    private Long sellerId;
+    private UserDTO seller;
 }
-

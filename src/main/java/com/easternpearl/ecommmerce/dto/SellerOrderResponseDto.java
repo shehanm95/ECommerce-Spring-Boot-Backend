@@ -1,5 +1,6 @@
 package com.easternpearl.ecommmerce.dto;
 
+import com.easternpearl.ecommmerce.entity.UserEntity;
 import com.easternpearl.ecommmerce.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,8 +16,8 @@ import java.util.List;
 public class SellerOrderResponseDto {
 
     private Long sellerOrderId;
-    private Integer sellerId;
-    private Integer buyerId;
+    private UserDTO seller;
+    private UserDTO buyer;
     private Double orderAmount;
     private Integer totalProducts;
     private LocalDateTime receivedDate;
@@ -24,6 +25,5 @@ public class SellerOrderResponseDto {
     private OrderStatus orderStatus; //Pending, Shipped, Canceled, Completed
     private List<SellerOrderDetailResponseDto> sellerOrderDetailsDto = new ArrayList<>();
     private Long buyerOrderId;
-    private UserNameAndImg userNameAndImg;
 }
 

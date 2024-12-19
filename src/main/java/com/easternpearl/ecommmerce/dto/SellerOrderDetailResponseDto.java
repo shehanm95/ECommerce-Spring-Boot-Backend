@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class SellerOrderDetailResponseDto {
 
     private Long sellerOrderDetailId;
-    private ProductForBuyerDTO product;
+    private ProductDTO product;
     private Integer quantity;
 
 }
